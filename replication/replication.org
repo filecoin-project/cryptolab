@@ -1,0 +1,1017 @@
+#+SETUPFILE: ../theme-bigblow.setup 
+
+ZigZag Replication
+
+#+BEGIN_SRC lisp :exports none
+  (asdf:load-system :orient)
+  (defpackage cryptolab.replication
+    (:use :common-lisp :orient :filecoin :orient.base.util)
+    (:nicknames :replication))
+
+  (in-package cryptolab.replication)
+
+#+END_SRC
+
+#+RESULTS:
+: #<PACKAGE "CRYPTOLAB.REPLICATION">
+
+#+BEGIN_SRC lisp :exports results :results raw :var timestamp=(format-time-string "[%F %r]: ")
+  (format t "~A Generated from commit ~A" timestamp (project-commit-link :org))
+#+END_SRC
+
+#+RESULTS:
+[2019-08-05 05:40:34 PM]:  Generated from commit [[https://github.com/filecoin-project/orient/commit/165d68f84efd4abc23d3085f4049747d6e982935
+][165d68f84efd4abc23d3085f4049747d6e982935
+]]
+
+#+NAME: init
+#+BEGIN_SRC lisp :package replication :exports results :results output :var sector-gib=32 spedersen=1.7 blake2s-speedup=1.666 gpu-speedup=3 seal-parallelism=14
+  (defvar *zigzag-base*)
+  (defvar *zigzag-base-plan*)
+  (defvar *zigzag-base-report*)
+  (defvar *zigzag-base-input*)
+  (defvar *zigzag-no-hybrid*)
+  (defvar *filecoin-base* (solve-for (filecoin-system) '()))
+
+  (let ((*spedersen* 1)
+        (*gpu-speedup* 1)
+        (*blake2s-speedup* 1))
+    (multiple-value-setq (*zigzag-base-report* *zigzag-base* *zigzag-base-input* *zigzag-base-plan*)
+      (report-solution-for '() :system (filecoin-system)
+                                          ; :initial-data initial-data 
+                           :format :html
+                           :override-data (tuple (sector-gib sector-gib) (seal-parallelism seal-parallelism) (max-beta-merkle-height 30))
+                                          ; :project-solution t
+                           :return-plan t
+                           :return-defaulted-data t))
+
+    (setq *zigzag-no-hybrid* (solve-for (filecoin-system) '() nil
+                                        :override-data (tuple (sector-gib sector-gib) (seal-parallelism seal-parallelism) (max-beta-merkle-height 0))))
+    
+    (format t "Initialized current ZigZag with ~A GiB sectors. Spedersen: ~d; Blake2s speedup: ~d GPU speedup: ~d~%~%"
+            sector-gib *spedersen* *blake2s-speedup* *gpu-speedup* (tref 'seal-time (extract *zigzag-base*))))
+
+  (defvar *zigzag-alt-base*)
+  (defvar *zigzag-alt-base-plan*)
+  (defvar *zigzag-alt-base-report*)
+  (defvar *zigzag-alt-base-input*)
+  (defvar *zigzag-alt-no-hybrid*)
+
+  (let ((*spedersen* spedersen)
+        (*gpu-speedup* gpu-speedup)
+        (*blake2s-speedup* blake2s-speedup))
+    (multiple-value-setq (*zigzag-alt-base-report* *zigzag-alt-base* *zigzag-alt-base-input* *zigzag-alt-base-plan*)
+      (report-solution-for '() :system (filecoin-system)
+                                          ; :initial-data initial-data 
+                           :format :html
+                           :override-data (tuple (sector-gib sector-gib) (seal-parallelism seal-parallelism) (max-beta-merkle-height 30))
+                                          ; :project-solution t
+                           :return-plan t
+                           :return-defaulted-data t))
+
+    (setq *zigzag-alt-no-hybrid* (solve-for (filecoin-system) '() nil
+                                            :override-data (tuple (sector-gib sector-gib) (seal-parallelism seal-parallelism) (max-beta-merkle-height 0))))
+    
+    (format t "Intialized Alternate ZigZag with ~A GiB sectors. Spedersen: ~d; Blake2s speedup: ~d GPU speedup: ~d~%~%"
+            sector-gib *spedersen* *blake2s-speedup* *gpu-speedup* (tref 'seal-time (extract *zigzag-base*))))
+
+#+END_SRC
+
+#+RESULTS: init
+: Initialized current ZigZag with 32 GiB sectors. Spedersen: 1; Blake2s speedup: 1 GPU speedup: 1
+: 
+: Intialized Alternate ZigZag with 32 GiB sectors. Spedersen: 1.7; Blake2s speedup: 1.666 GPU speedup: 3
+: 
+
+# #+CALL: init(sector-gib=64)
+
+# #+RESULTS:
+# : Intialized with 64 GiB sectors.
+* Current ZigZag
+** Sector
+#+BEGIN_SRC  lisp :package replication :exports results
+(org-present (project '(sector-size sector-gib) *zigzag-base*) nil)
+#+END_SRC
+#+RESULTS:
+| SECTOR-GIB | SECTOR-SIZE |
+|         32 | 34359738368 |
+
+** Replication
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(replication-time replication-time-per-GiB) *zigzag-base*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| REPLICATION-TIME | REPLICATION-TIME-PER-GIB |
+|        6855.9707 |                214.24908 |
+
+** Sealing
+*** *No Hybrid Merkle*
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(seal-time gib-seal-cost gib-hour-seal-investment seal-parallelism gib-seal-time wall-clock-seal-time wall-clock-seal-time-per-gib) *zigzag-no-hybrid*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| SEAL-PARALLELISM | WALL-CLOCK-SEAL-TIME | GIB-SEAL-COST | SEAL-TIME | GIB-HOUR-SEAL-INVESTMENT | GIB-SEAL-TIME | WALL-CLOCK-SEAL-TIME-PER-GIB |
+|               64 |            14679.845 |    0.18755668 | 946366.06 |                410.74915 |      29573.94 |                    458.74515 |
+
+*** *Hybrid Merkle*
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(seal-time gib-seal-cost  gib-hour-seal-investment seal-parallelism gib-seal-time wall-clock-seal-time wall-clock-seal-time-per-gib) *zigzag-base*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| SEAL-PARALLELISM | WALL-CLOCK-SEAL-TIME | GIB-SEAL-COST | SEAL-TIME | GIB-HOUR-SEAL-INVESTMENT | GIB-SEAL-TIME | WALL-CLOCK-SEAL-TIME-PER-GIB |
+|               64 |            13065.438 |    0.16707969 | 843044.06 |                365.90454 |     26345.127 |                    408.29495 |
+
+*** *Hybrid Savings*
+#+BEGIN_SRC lisp :package replication :exports results :results output
+    (let ((percent-cpu-time (* 100.0 (/ (tref 'seal-time (extract *zigzag-base*))
+                                       (tref 'seal-time (extract *zigzag-no-hybrid*)))))
+          (percent-wall-time (* 100.0 (/ (tref 'wall-clock-seal-time (extract *zigzag-base*))
+                                         (tref 'wall-clock-seal-time (extract *zigzag-no-hybrid*))))))
+
+      (format t "Hybrid SEAL-TIME (CPU) is ~,2f% of non-hybrid SEAL-TIME.~%This is a savings of ~,2f%.~%~%" percent-cpu-time (- 100 percent-cpu-time))
+      (format t "Hybrid WALL-CLOCK-SEAL-TIME (CPU) is ~,2f% of non-hybrid WALL-CLOCK-SEAL-TIME.~%This is a savings of ~,2f%.~%~%" percent-wall-time (- 100 percent-wall-time)))
+#+END_SRC
+
+#+RESULTS:
+: Hybrid SEAL-TIME (CPU) is 89.08% of non-hybrid SEAL-TIME.
+: This is a savings of 10.92%.
+: 
+: Hybrid WALL-CLOCK-SEAL-TIME (CPU) is 89.00% of non-hybrid WALL-CLOCK-SEAL-TIME.
+: This is a savings of 11.00%.
+: 
+
+** Filecoin Growth Rate (FGR) )
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(one-year-fgr two-year-fgr three-year-fgr) *zigzag-base*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| ONE-YEAR-FGR | TWO-YEAR-FGR | THREE-YEAR-FGR |
+|    1.1387482 |    3.5830317 |       6.027315 |
+)
+** Hybrid Merkle Trees
+#+BEGIN_SRC lisp :package replication :exports results
+(org-present (tref 'optimal-heights (extract (project '(optimal-heights) *zigzag-base*))) nil)
+#+END_SRC
+
+#+RESULTS:
+| CIRCUIT-TIME | HASHING-TIME | LAYER-INDEX | CONSTRAINTS | LOWEST-TIME | OPTIMAL-BETA-MERKLE-HEIGHT |
+|          0.0 |     97.94244 |           0 |           0 |    97.94244 |                         30 |
+|    20836.523 |    3596.2986 |           1 |   171690880 |   24432.822 |                          3 |
+|    20836.523 |    3596.2986 |           2 |   171690880 |   24432.822 |                          3 |
+|    20836.523 |    3596.2986 |           3 |   171690880 |   24432.822 |                          3 |
+|    27110.928 |     7094.655 |           4 |   225136320 |   34205.582 |                          2 |
+|     39762.69 |     7094.655 |           5 |   330199936 |   46857.348 |                          2 |
+|     50527.54 |    14091.367 |           6 |   424019904 |   64618.906 |                          1 |
+|     75791.31 |    14091.367 |           7 |   636029856 |    89882.68 |                          1 |
+|    93488.586 |    28084.791 |           8 |   796337056 |  121573.375 |                          0 |
+|    139919.16 |    28084.791 |           9 |  1191833312 |   168003.95 |                          0 |
+|    209565.02 |    28084.791 |          10 |  1785077696 |   237649.81 |                          0 |
+
+** Inputs
+#+BEGIN_SRC lisp :package replication :exports results
+  (let ((input  *zigzag-base-input*))
+    (loop for attr in (fset:convert 'list (attributes input))
+       collect (list (symbol-name attr) (present-data :org (tref attr input) nil))))
+
+#+END_SRC
+
+#+RESULTS:
+| LAYERS                              |                                                                                                                                                                                                                                                                   10 |
+| SEAL-GHZ                            |                                                                                                                                                                                                                                                                  5.0 |
+| NODE-BYTES                          |                                                                                                                                                                                                                                                                   32 |
+| PARTITIONS                          |                                                                                                                                                                                                                                                                    1 |
+| SECTOR-GIB                          |                                                                                                                                                                                                                                                                   32 |
+| SLOTH-ITER                          |                                                                                                                                                                                                                                                                    0 |
+| BASE-DEGREE                         |                                                                                                                                                                                                                                                                    5 |
+| CPU-GHZ-COST                        |                                                                                                                                                                                                                                                                 10.0 |
+| ZIGZAG-DELTA                        |                                                                                                                                                                                                                                                                0.003 |
+| ZIGZAG-TAPER                        |                                                                                                                                                                                                                                                                  1/3 |
+| ANNUAL-INCOME                       |                                                                                                                                                                                                                                                              50000.0 |
+| ZIGZAG-LAMBDA                       |                                                                                                                                                                                                                                                                    8 |
+| HASH-FUNCTIONS                      | ((FILECOIN::HASH-FUNCTION-TIME FILECOIN::HASH-FUNCTION-CONSTRAINTS FILECOIN::HASH-FUNCTION-NAME CIRCUIT-TIME FILECOIN::HASH-FUNCTION-SIZE) (2.6156e-05 1324 :PEDERSEN 0.153988 32) (4.5608e-08 5162 :BLAKE2S-KDF 0.65253 32) (9.1216e-08 10324 :BLAKE2S 1.30506 32)) |
+| TIB-DRIVE-COST                      |                                                                                                                                                                                                                                                                 30.0 |
+| ZIGZAG-EPSILON                      |                                                                                                                                                                                                                                                                0.007 |
+| EXPANSION-DEGREE                    |                                                                                                                                                                                                                                                                    8 |
+| SEAL-PARALLELISM                    |                                                                                                                                                                                                                                                                   64 |
+| AWS-GLACIER-PRICE                   |                                                                                                                                                                                                                                                                0.004 |
+| MUST-HAVE-FILECOIN                  |                                                                                                                                                                                                                                                                    T |
+| MINIMUM-ONE-YEAR-FGR                |                                                                                                                                                                                                                                                                   -2 |
+| MINIMUM-TWO-YEAR-FGR                |                                                                                                                                                                                                                                                                 0.25 |
+| UP-FRONT-MEMORY-COST                |                                                                                                                                                                                                                                                                  0.0 |
+| KDF-HASH-FUNCTION-NAME              |                                                                                                                                                                                                                                                          BLAKE2S-KDF |
+| MAX-BETA-MERKLE-HEIGHT              |                                                                                                                                                                                                                                                                   30 |
+| MINIMUM-THREE-YEAR-FGR              |                                                                                                                                                                                                                                                                  1.0 |
+| BETA-HASH-FUNCTION-NAME             |                                                                                                                                                                                                                                                              BLAKE2S |
+| ALPHA-HASH-FUNCTION-NAME            |                                                                                                                                                                                                                                                             PEDERSEN |
+| MINER-MONTHS-TO-CAPACITY            |                                                                                                                                                                                                                                                                    3 |
+| BENCH-CIRCUIT-CONSTRAINTS           |                                                                                                                                                                                                                                                                10324 |
+| MERKLE-HASH-FUNCTION-NAME           |                                                                                                                                                                                                                                                             PEDERSEN |
+| SINGLE-CIRCUIT-PROOF-SIZE           |                                                                                                                                                                                                                                                                  192 |
+| BENCH-CIRCUIT-PROVING-TIME          |                                                                                                                                                                                                                                                              0.14464 |
+| COMMODITY-STORAGE-DISCOUNT          |                                                                                                                                                                                                                                                                   10 |
+| MAXIMUM-ALLOWABLE-SPACE-GAP         |                                                                                                                                                                                                                                                                 0.02 |
+| SINGLE-SLOTH-ITERATION-TIME         |                                                                                                                                                                                                                                                                  123 |
+| TOTAL-ZIGZAG-OTHER-CONSTRAINTS      |                                                                                                                                                                                                                                                                    0 |
+| ALPHA-MERKLE-HASH-FUNCTION-NAME     |                                                                                                                                                                                                                                                             PEDERSEN |
+| SINGLE-SLOTH-ITERATION-CONSTRAINTS  |                                                                                                                                                                                                                                                                  321 |
+| MINIMUM-STORAGE-TO-PROOF-SIZE-RATIO |                                                                                                                                                                                                                                                        1073741824/25 |
+
+* Alternate ZigZag Projections
+** Sector
+#+BEGIN_SRC  lisp :package replication :exports results
+(org-present (project '(sector-size sector-gib) *zigzag-alt-base*) nil)
+#+END_SRC
+#+RESULTS:
+| SECTOR-GIB | SECTOR-SIZE |
+|         32 | 34359738368 |
+
+** Replication
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(replication-time replication-time-per-GiB) *zigzag-alt-base*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| REPLICATION-TIME | REPLICATION-TIME-PER-GIB |
+|        4115.2285 |                128.60089 |
+
+** Sealing
+*** *No Hybrid Merkle*
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(gib-seal-cost gib-hour-seal-investment seal-time seal-parallelism gib-seal-time wall-clock-seal-time wall-clock-seal-time-per-gib) *zigzag-alt-no-hybrid*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| SEAL-PARALLELISM | WALL-CLOCK-SEAL-TIME | GIB-SEAL-COST | SEAL-TIME | GIB-HOUR-SEAL-INVESTMENT | GIB-SEAL-TIME | WALL-CLOCK-SEAL-TIME-PER-GIB |
+|               64 |             6123.712 |    0.07848823 | 396032.78 |                171.88922 |     12376.024 |                      191.366 |
+
+*** *Hybrid Merkle*
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(seal-time gib-seal-cost gib-hour-seal-investment  seal-parallelism gib-seal-time wall-clock-seal-time wall-clock-seal-time-per-gib) *zigzag-alt-base*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| SEAL-PARALLELISM | WALL-CLOCK-SEAL-TIME | GIB-SEAL-COST | SEAL-TIME | GIB-HOUR-SEAL-INVESTMENT | GIB-SEAL-TIME | WALL-CLOCK-SEAL-TIME-PER-GIB |
+|               64 |             4848.589 |   0.062314685 |  314424.9 |                136.46916 |      9825.778 |                     151.5184 |
+
+*** *Hybrid Savings*
+#+BEGIN_SRC lisp :package replication :exports results :results output
+    (let ((percent-cpu-time (* 100.0 (/ (tref 'seal-time (extract *zigzag-base*))
+                                       (tref 'seal-time (extract *zigzag-no-hybrid*)))))
+          (percent-wall-time (* 100.0 (/ (tref 'wall-clock-seal-time (extract *zigzag-alt-base*))
+                                         (tref 'wall-clock-seal-time (extract *zigzag-alt-no-hybrid*))))))
+
+      (format t "Hybrid SEAL-TIME (CPU) is ~,2f% of non-hybrid SEAL-TIME.~%This is a savings of ~,2f%.~%~%" percent-cpu-time (- 100 percent-cpu-time))
+      (format t "Hybrid WALL-CLOCK-SEAL-TIME (CPU) is ~,2f% of non-hybrid WALL-CLOCK-SEAL-TIME.~%This is a savings of ~,2f%.~%~%" percent-wall-time (- 100 percent-wall-time)))
+#+END_SRC
+
+#+RESULTS:
+: Hybrid SEAL-TIME (CPU) is 89.08% of non-hybrid SEAL-TIME.
+: This is a savings of 10.92%.
+: 
+: Hybrid WALL-CLOCK-SEAL-TIME (CPU) is 79.18% of non-hybrid WALL-CLOCK-SEAL-TIME.
+: This is a savings of 20.82%.
+: 
+
+** FGR
+#+BEGIN_SRC lisp :package replication :exports results
+
+(org-present (project '(one-year-fgr two-year-fgr three-year-fgr) *zigzag-alt-base*) nil)
+
+#+END_SRC
+
+#+RESULTS:
+| ONE-YEAR-FGR | TWO-YEAR-FGR | THREE-YEAR-FGR |
+|    3.5845745 |     8.824088 |      14.063601 |
+
+** Hybrid Merkle Trees
+#+BEGIN_SRC lisp :package replication :exports results
+(org-present (tref 'optimal-heights (extract (project '(optimal-heights) *zigzag-alt-base*))) nil)
+#+END_SRC
+
+#+RESULTS:
+| CIRCUIT-TIME | HASHING-TIME | LAYER-INDEX | CONSTRAINTS | LOWEST-TIME | OPTIMAL-BETA-MERKLE-HEIGHT |
+|          0.0 |     58.78898 |           0 |           0 |    58.78898 |                         30 |
+|     7866.365 |    1087.6437 |           1 |   193290880 |    8954.009 |                          4 |
+|     7866.365 |    1087.6437 |           2 |   193290880 |    8954.009 |                          4 |
+|     7866.365 |    1087.6437 |           3 |   193290880 |    8954.009 |                          4 |
+|    10418.262 |    2116.4985 |           4 |   257536320 |    12534.76 |                          3 |
+|    15280.117 |    2116.4985 |           5 |   377719936 |   17396.615 |                          3 |
+|    19881.344 |     4174.208 |           6 |   495299904 |    24055.55 |                          2 |
+|    25263.771 |     8289.627 |           7 |   636029856 |     33553.4 |                          1 |
+|     38023.25 |     8289.627 |           8 |   957257056 |   46312.875 |                          1 |
+|     46639.72 |    16520.465 |           9 |  1191833312 |   63160.184 |                          0 |
+|      69855.0 |    16520.465 |          10 |  1785077696 |    86375.47 |                          0 |
+
+* Schema
+#+BEGIN_SRC lisp :package replication :exports results
+  (loop for schema in (all-system-schemas (zigzag-system))
+     append (loop for parameter in (schema-parameters schema)
+               collect (list (string-downcase (symbol-name (parameter-name parameter))) (parameter-description parameter))))
+#+END_SRC
+
+#+RESULTS:
+| node-bytes                           | The number of bytes in a node -- must also be the hash digest size.                                                                                                                                                                                                            |
+| sector-gib                           | Size of one sector. Unit: GiB                                                                                                                                                                                                                                                  |
+| sector-size                          | Size of one sector. Unit: bytes                                                                                                                                                                                                                                                |
+| comm-d-size                          | Size of the data commitment (CommD). Unit: bytes                                                                                                                                                                                                                               |
+| comm-r-size                          | Size of the replica commitment (CommR). Unit: bytes                                                                                                                                                                                                                            |
+| comm-r-star-size                     | Size of the aggregated commitment to each layer's replica (CommR*). Unit: bytes                                                                                                                                                                                                |
+| comm-rs-size                         | Size of all replica commitments. Unit: bytes                                                                                                                                                                                                                                   |
+| commitments-size                     | Size of all commitments returned by Seal. Unit: bytes                                                                                                                                                                                                                          |
+| on-chain-porep-size                  | On-chain size of one Seal proof plus commitments. Unit: bytes                                                                                                                                                                                                                  |
+| degree                               | Total in-degree of the ZigZag graph.                                                                                                                                                                                                                                           |
+| base-degree                          | In-degree of the base depth-robust graph (DRG).                                                                                                                                                                                                                                |
+| expansion-degree                     | Maximum in-degree of the bipartite expander graph component of a ZigZag graph.                                                                                                                                                                                                 |
+| sloth-iter                           | Number of iterations of sloth verifiable delay encoding (VDE) to perform.                                                                                                                                                                                                      |
+| partitions                           | Number of circuit partitions into which a proof is divided.                                                                                                                                                                                                                    |
+| replication-time                     | Time to replicate one sector. Unit: seconds                                                                                                                                                                                                                                    |
+| replication-time-per-byte            | Time to replicate one byte. Unit: seconds / byte                                                                                                                                                                                                                               |
+| replication-time-per-gib             | Time to replicate one GiB. Unit: seconds / GiB                                                                                                                                                                                                                                 |
+| sealing-time                         | Total CPU time to seal (replicate + generate proof of replication) one sector. Unit: seconds                                                                                                                                                                                   |
+| non-circuit-proving-time             | Time (including replication) to generate a non-circuit proof of replication. Unit: seconds                                                                                                                                                                                     |
+| vector-commitment-time               | Time to generate the vector commitments used in a non-circuit proof of replication. Unit: seconds                                                                                                                                                                              |
+| circuit-proving-time-per-constraint  | Groth16 circuit proving time (from benchmarks) per constraint. Unit: seconds                                                                                                                                                                                                   |
+| zigzag-total-proving-time            | Total time to generate a proof of replication (circuit and non-circuit). Unit: seconds                                                                                                                                                                                         |
+| seal-time                            | Total time to seal (replication + proving) one sector. Unit: seconds                                                                                                                                                                                                           |
+| wall-clock-seal-time                 | Wall clock time sealing time using SEAL-PARALLELISM cores. Unit: seconds                                                                                                                                                                                                       |
+| seal-parallelism                     | Number of cores utilized when computing wall-clock-seal-time.                                                                                                                                                                                                                  |
+| sector-gib                           | Number of GiB in one sector. Unit: GiB                                                                                                                                                                                                                                         |
+| gib-seal-time                        | Total time to seal (replication + proving) one GiB. Unit: seconds                                                                                                                                                                                                              |
+| total-parents                        | Number of parents (or padding) each node uses when performing key derivation.                                                                                                                                                                                                  |
+| hash-functions                       | Alternate hash functions for use in merkle-tree generation, KDF, or other commitments. All values here assume 64 bytes of raw input, but benchmarks include any extra, 'personalization', bits/bytes included as input during merkle-tree construction.                        |
+| single-kdf-hashes                    | Number of hashes performed as part of a single application of the key-derivation function (KDF). This is equal to the number of parents and includes the replica ID. Since we use Merkle-Damgard construction, the number of compression hashes is the number of elements - 1. |
+| kdf-hashes                           | Number of hashes performed as part of the key-derivation function (KDF).                                                                                                                                                                                                       |
+| single-kdf-time                      | Hashing time to perform a single KDF. Unit: seconds                                                                                                                                                                                                                            |
+| single-layer-merkle-hashing-time     | Merkle hashing time for a single layer. Unit: seconds                                                                                                                                                                                                                          |
+| total-merkle-trees                   | Total merkle trees which must be generated.                                                                                                                                                                                                                                    |
+| total-merkle-hashing-time            | Total time to generate all merkle trees. Unit: seconds                                                                                                                                                                                                                         |
+| total-nodes-to-encode                | Total nodes to encode across all layers.                                                                                                                                                                                                                                       |
+| single-node-sloth-time               | Time to perform sloth (VDE) for a single node. Unit: seconds                                                                                                                                                                                                                   |
+| single-node-encoding-time            | Time to encode a single node. Unit: seconds                                                                                                                                                                                                                                    |
+| single-challenge-inclusion-proofs    | Number of inclusion proofs which must be verified for a single challenge.                                                                                                                                                                                                      |
+| single-challenge-merkle-hases        | Number of merkle hashes which must be verified for a single challenge.                                                                                                                                                                                                         |
+| single-challenge-kdf-hashes          | Number of KDF hashes which must be verified for a single challenge.                                                                                                                                                                                                            |
+| single-challenge-sloth-verifications | Number of sloth iterations which must be verified for a single challenge.                                                                                                                                                                                                      |
+| total-kdf-hashes                     | Total number of KDF (key-derivation function) required during replication.                                                                                                                                                                                                     |
+| total-zigzag-kdf-hashing-constraints | Total number of kdf hashing constraints in a ZigZag circuit.                                                                                                                                                                                                                   |
+| total-zigzag-non-hashing-constraints | Total number of hashes which must be verified in a ZigZag circuit.                                                                                                                                                                                                             |
+| total-zigzag-circuit-kdf-hashes      | Total number of KDF hashes which must be verified in a ZigZag circuit.                                                                                                                                                                                                         |
+| total-zigzag-sloth-constraints       | Total number of constraints due to sloth verification.                                                                                                                                                                                                                         |
+| total-zigzag-constraints             | Total number of constraints which must be verified in a ZigZag circuit.                                                                                                                                                                                                        |
+| layer-index                          | Index of layer. Unit: integer                                                                                                                                                                                                                                                  |
+| layer-replication-time               | Time to replicate one layer. Unit: seconds                                                                                                                                                                                                                                     |
+| storage-to-proof-size-ratio          | Ratio of sealed sector size to on-chain PoRep size.                                                                                                                                                                                                                            |
+| storage-to-proof-size-float          | Ratio of sealed sector size to on-chain PoRep size -- expressed as a float.                                                                                                                                                                                                    |
+| single-circuit-proof-size            | Size of a single Groth16 Proof. Unit: bytes                                                                                                                                                                                                                                    |
+| total-circuit-proof-size             | Total size of a single circuit proof. Unit: bytes                                                                                                                                                                                                                              |
+| total-challenges                     |                                                                                                                                                                                                                                                                                |
+| partition-challenges                 |                                                                                                                                                                                                                                                                                |
+| kdf-hash-function.size               | Size of digest (output) generated by *.HASH-FUNCTION.                                                                                                                                                                                                                          |
+| kdf-hash-function.circuit-time       | Time for one *.HASH-FUNCTION in circuit.                                                                                                                                                                                                                                       |
+| kdf-hash-function.constraints        | Number of constraints required to prove *.HASH-FUNCTION in circuit.                                                                                                                                                                                                            |
+| kdf-hash-function.hash-function%     | Tuple containing the selected hash function's characteristics.                                                                                                                                                                                                                 |
+| merkle-hash-function.size            | Size of digest (output) generated by *.HASH-FUNCTION.                                                                                                                                                                                                                          |
+| merkle-hash-function.circuit-time    | Time for one *.HASH-FUNCTION in circuit.                                                                                                                                                                                                                                       |
+| merkle-hash-function.constraints     | Number of constraints required to prove *.HASH-FUNCTION in circuit.                                                                                                                                                                                                            |
+| merkle-hash-function.hash-function%  | Tuple containing the selected hash function's characteristics.                                                                                                                                                                                                                 |
+| alpha-hash-function.size             | Size of digest (output) generated by *.HASH-FUNCTION.                                                                                                                                                                                                                          |
+| alpha-hash-function.circuit-time     | Time for one *.HASH-FUNCTION in circuit.                                                                                                                                                                                                                                       |
+| alpha-hash-function.constraints      | Number of constraints required to prove *.HASH-FUNCTION in circuit.                                                                                                                                                                                                            |
+| alpha-hash-function.hash-function%   | Tuple containing the selected hash function's characteristics.                                                                                                                                                                                                                 |
+| beta-hash-function.size              | Size of digest (output) generated by *.HASH-FUNCTION.                                                                                                                                                                                                                          |
+| beta-hash-function.circuit-time      | Time for one *.HASH-FUNCTION in circuit.                                                                                                                                                                                                                                       |
+| beta-hash-function.constraints       | Number of constraints required to prove *.HASH-FUNCTION in circuit.                                                                                                                                                                                                            |
+| beta-hash-function.hash-function%    | Tuple containing the selected hash function's characteristics.                                                                                                                                                                                                                 |
+| zigzag-soundness                     | ZigZag soundness: Unit fraction                                                                                                                                                                                                                                                |
+| zigzag-lambda                        | ZigZag soundness: Unit bits                                                                                                                                                                                                                                                    |
+| zigzag-epsilon                       | Maximum allowable deletion (space tightness): Unit: fraction                                                                                                                                                                                                                   |
+| zigzag-delta                         | Maximum allowable cheating on labels (block corruption)                                                                                                                                                                                                                        |
+| zigzag-basic-layer-challenges        | Multiple of lambda challenges per layer, without tapering optimization.                                                                                                                                                                                                        |
+| zigzag-basic-layer-challenge-factor  | Number of challenges which, when multiplied by lambda, yields the number of challenges per layer without tapering optimization.                                                                                                                                                |
+| zigzag-space-gap                     | Maximum allowable gap between actual and claimed storage. Unit: fraction                                                                                                                                                                                                       |
+| zigzag-layer-challenges              | Number of challenges in this (indexed) layer of ZigZag PoRep. Unit: integer                                                                                                                                                                                                    |
+| layers                               | Number of layers specified for this construction (not necessarily same as calculated from security parameters).                                                                                                                                                                |
+# * ZigZag Report/Trace
+# #+BEGIN_SRC lisp :package replication :exports results :results output html
+#   (with-open-file (orient.web.html:*html-output-stream* "zigzag-report.html" :direction :output :if-exists :supersede :if-does-not-exist :create)
+#     (orient.web.html:html-print `(:html ,*zigzag-base-report*)))
+
+# (princ "<a href='zigzag-report.html' download>ZigZag Report</a>")
+# #+END_SRC
+
+# #+RESULTS:
+# #+BEGIN_HTML
+# <a href='zigzag-report.html' download>ZigZag Report</a>
+# #+END_HTML
+* JSON
+#+NAME: project-root
+#+BEGIN_SRC lisp :exports none
+(namestring (project-root))
+#+END_SRC
+
+#+RESULTS: project-root
+: /Users/clwk/dev/go/src/github.com/filecoin-project/orient/
+
+#+BEGIN_SRC sh :exports both :results output :var calc="performance" dir=project-root
+cd $dir; make ubercalc 2>&1 | /dev/null
+
+./bin/ucalc solve --calc=filecoin | jq
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+[
+  {
+    "optimalHeights": {
+      "tuples": [
+        {
+          "constraints": 0,
+          "layerIndex": 0,
+          "lowestTime": 97.94244,
+          "circuitTime": 0,
+          "hashingTime": 97.94244,
+          "optimalBetaMerkleHeight": 30
+        },
+        {
+          "constraints": 171690880,
+          "layerIndex": 1,
+          "lowestTime": 24432.822,
+          "circuitTime": 20836.523,
+          "hashingTime": 3596.2986,
+          "optimalBetaMerkleHeight": 3
+        },
+        {
+          "constraints": 171690880,
+          "layerIndex": 2,
+          "lowestTime": 24432.822,
+          "circuitTime": 20836.523,
+          "hashingTime": 3596.2986,
+          "optimalBetaMerkleHeight": 3
+        },
+        {
+          "constraints": 171690880,
+          "layerIndex": 3,
+          "lowestTime": 24432.822,
+          "circuitTime": 20836.523,
+          "hashingTime": 3596.2986,
+          "optimalBetaMerkleHeight": 3
+        },
+        {
+          "constraints": 225136320,
+          "layerIndex": 4,
+          "lowestTime": 34205.582,
+          "circuitTime": 27110.928,
+          "hashingTime": 7094.655,
+          "optimalBetaMerkleHeight": 2
+        },
+        {
+          "constraints": 330199936,
+          "layerIndex": 5,
+          "lowestTime": 46857.348,
+          "circuitTime": 39762.69,
+          "hashingTime": 7094.655,
+          "optimalBetaMerkleHeight": 2
+        },
+        {
+          "constraints": 424019904,
+          "layerIndex": 6,
+          "lowestTime": 64618.906,
+          "circuitTime": 50527.54,
+          "hashingTime": 14091.367,
+          "optimalBetaMerkleHeight": 1
+        },
+        {
+          "constraints": 636029856,
+          "layerIndex": 7,
+          "lowestTime": 89882.68,
+          "circuitTime": 75791.31,
+          "hashingTime": 14091.367,
+          "optimalBetaMerkleHeight": 1
+        },
+        {
+          "constraints": 796337056,
+          "layerIndex": 8,
+          "lowestTime": 121573.375,
+          "circuitTime": 93488.586,
+          "hashingTime": 28084.791,
+          "optimalBetaMerkleHeight": 0
+        },
+        {
+          "constraints": 1191833312,
+          "layerIndex": 9,
+          "lowestTime": 168003.95,
+          "circuitTime": 139919.16,
+          "hashingTime": 28084.791,
+          "optimalBetaMerkleHeight": 0
+        },
+        {
+          "constraints": 1785077696,
+          "layerIndex": 10,
+          "lowestTime": 237649.81,
+          "circuitTime": 209565.02,
+          "hashingTime": 28084.791,
+          "optimalBetaMerkleHeight": 0
+        }
+      ]
+    },
+    "nodes": 1073741824,
+    "degree": 13,
+    "layers": 10,
+    "profit": true,
+    "sealHz": 5000000000,
+    "sealGhz": 5,
+    "dailyTib": 1.1147972,
+    "sealTime": 843044.06,
+    "fgrMonths": 6.409414,
+    "hourlyGib": 47.564682,
+    "hourlyTib": 0.046449885,
+    "neededGhz": 1740.4132,
+    "nodeBytes": 32,
+    "partitions": 1,
+    "sectorGib": 32,
+    "slothIter": 0,
+    "baseDegree": 5,
+    "commDSize": 32,
+    "commRSize": 32,
+    "monthlyTib": 33.908417,
+    "sectorSize": 34359738368,
+    "commRsSize": 64,
+    "cpuGhzCost": 10,
+    "gibCapacity": 104166.66,
+    "oneYearFgr": 1.1387482,
+    "tibCapacity": 101.72525,
+    "twoYearFgr": 3.5830317,
+    "zigzagDelta": 0.003,
+    "zigzagTaper": 0.33333334,
+    "annualIncome": 50000,
+    "gibSealCost": 0.16707969,
+    "gibSealTime": 26345.127,
+    "totalParents": 13,
+    "zigzagLambda": 8,
+    "zigzagLayers": 12,
+    "hashFunctions": {
+      "tuples": [
+        {
+          "circuitTime": 0.153988,
+          "hashFunctionName": "pedersen",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 2.6156e-05,
+          "hashFunctionConstraints": 1324
+        },
+        {
+          "circuitTime": 0.65253,
+          "hashFunctionName": "blake2sKdf",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 4.5608e-08,
+          "hashFunctionConstraints": 5162
+        },
+        {
+          "circuitTime": 1.30506,
+          "hashFunctionName": "blake2s",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 9.1216e-08,
+          "hashFunctionConstraints": 10324
+        }
+      ]
+    },
+    "monthlyIncome": 4166.6665,
+    "threeYearFgr": 6.027315,
+    "tibDriveCost": 30,
+    "zigzagEpsilon": 0.007,
+    "gibSealCycles": 131725630000000,
+    "oneYearProfit": 23294.107,
+    "singleKdfTime": 6.38512e-07,
+    "twoYearProfit": 73294.1,
+    "alternateLayers": {
+      "tuples": [
+        {
+          "provingTime": 237649.81,
+          "betaMerkleHeight": 0
+        },
+        {
+          "provingTime": 269791.34,
+          "betaMerkleHeight": 1
+        },
+        {
+          "provingTime": 308929.63,
+          "betaMerkleHeight": 2
+        },
+        {
+          "provingTime": 351566.25,
+          "betaMerkleHeight": 3
+        },
+        {
+          "provingTime": 395952.03,
+          "betaMerkleHeight": 4
+        },
+        {
+          "provingTime": 441212.38,
+          "betaMerkleHeight": 5
+        },
+        {
+          "provingTime": 486910.06,
+          "betaMerkleHeight": 6
+        },
+        {
+          "provingTime": 532826.4,
+          "betaMerkleHeight": 7
+        },
+        {
+          "provingTime": 578852,
+          "betaMerkleHeight": 8
+        },
+        {
+          "provingTime": 624932.3,
+          "betaMerkleHeight": 9
+        },
+        {
+          "provingTime": 671039.94,
+          "betaMerkleHeight": 10
+        },
+        {
+          "provingTime": 717161.25,
+          "betaMerkleHeight": 11
+        },
+        {
+          "provingTime": 763289.4,
+          "betaMerkleHeight": 12
+        },
+        {
+          "provingTime": 809420.9,
+          "betaMerkleHeight": 13
+        },
+        {
+          "provingTime": 855554.1,
+          "betaMerkleHeight": 14
+        },
+        {
+          "provingTime": 901688.4,
+          "betaMerkleHeight": 15
+        },
+        {
+          "provingTime": 947822.8,
+          "betaMerkleHeight": 16
+        },
+        {
+          "provingTime": 993957.5,
+          "betaMerkleHeight": 17
+        },
+        {
+          "provingTime": 1040092.5,
+          "betaMerkleHeight": 18
+        },
+        {
+          "provingTime": 1086227.4,
+          "betaMerkleHeight": 19
+        },
+        {
+          "provingTime": 1132362.4,
+          "betaMerkleHeight": 20
+        },
+        {
+          "provingTime": 1178497.4,
+          "betaMerkleHeight": 21
+        },
+        {
+          "provingTime": 1224632.3,
+          "betaMerkleHeight": 22
+        },
+        {
+          "provingTime": 1270767.1,
+          "betaMerkleHeight": 23
+        },
+        {
+          "provingTime": 1316902.3,
+          "betaMerkleHeight": 24
+        },
+        {
+          "provingTime": 1363037.1,
+          "betaMerkleHeight": 25
+        },
+        {
+          "provingTime": 1409172.3,
+          "betaMerkleHeight": 26
+        },
+        {
+          "provingTime": 1455307.1,
+          "betaMerkleHeight": 27
+        },
+        {
+          "provingTime": 1501442,
+          "betaMerkleHeight": 28
+        },
+        {
+          "provingTime": 1547577.1,
+          "betaMerkleHeight": 29
+        },
+        {
+          "provingTime": 1593712.1,
+          "betaMerkleHeight": 30
+        }
+      ]
+    },
+    "commRStarSize": 32,
+    "commitmentsSize": 96,
+    "expansionDegree": 8,
+    "replicationTime": 6855.9707,
+    "sealParallelism": 14,
+    "totalChallenges": 2672,
+    "zigzagSoundness": 0.00390625,
+    "zigzagSpaceGap": 0.01,
+    "awsGlacierPrice": 0.004,
+    "singleKdfHashes": 14,
+    "threeYearProfit": 123294.1,
+    "mustHaveFilecoin": true,
+    "totalCircuitTime": 698674.8,
+    "totalHashingTime": 137513.25,
+    "totalProvingTime": 836188.06,
+    "onChainPorepSize": 288,
+    "spaceGapSatisfied": true,
+    "totalUpFrontCost": 20455.89,
+    "upFrontDriveCost": 3051.7576,
+    "minimumOneYearFgr": -2,
+    "minimumTwoYearFgr": 0.25,
+    "partitionChallenges": 2672,
+    "sealCyclesPerHour": 6265487600000000,
+    "upFrontMemoryCost": 0,
+    "wallClockSealTime": 59727.72,
+    "incomeDuringRampUp": 6250,
+    "totalNodesToEncode": 10737418240,
+    "upFrontComputeCost": 17404.133,
+    "upFrontSealingCost": 17404.133,
+    "fgrMonthsAtCapacity": 3.4094138,
+    "kdfHashFunctionName": "blake2sKdf",
+    "kdfHashFunction.size": 32,
+    "kdfHashFunction.time": 4.5608e-08,
+    "layerReplicationTime": 685.59705,
+    "maxBetaMerkleHeight": 30,
+    "minimumThreeYearFgr": 1,
+    "oneYearFgrSatisfied": true,
+    "oneYearProfitMonths": 5.590586,
+    "sealCyclesPerMinute": 104424790000000,
+    "sealCyclesPerSecond": 1740413200000,
+    "singleNodeSlothTime": 0,
+    "twoYearFgrSatisfied": true,
+    "twoYearProfitMonths": 17.590586,
+    "betaHashFunctionName": "blake2s",
+    "betaHashFunction.size": 32,
+    "betaHashFunction.time": 9.1216e-08,
+    "comparableMonthlyCost": 416.66666,
+    "kdfHashFunction.name%": "blake2sKdf",
+    "totalZigzagChallenges": 2672,
+    "alphaHashFunctionName": "pedersen",
+    "alphaHashFunction.size": 32,
+    "alphaHashFunction.time": 2.6156e-05,
+    "betaHashFunction.name%": "blake2s",
+    "filecoinFgrRequirement": true,
+    "gibHourSealInvestment": 365.90454,
+    "layerPerformance.layers": 10,
+    "minerMonthsToCapacity": 3,
+    "replicationTimePerGib": 214.24908,
+    "threeYearFgrSatisfied": true,
+    "threeYearProfitMonths": 29.590586,
+    "totalCircuitProofSize": 192,
+    "totalZigzagConstraints": 5903706720,
+    "alphaHashFunction.name%": "pedersen",
+    "benchCircuitConstraints": 10324,
+    "incomeToFgrAtCapacity": 14205.891,
+    "merkleHashFunctionName": "pedersen",
+    "merkleHashFunction.size": 32,
+    "merkleHashFunction.time": 2.6156e-05,
+    "replicationTimePerByte": 1.9953501e-07,
+    "singleCircuitProofSize": 192,
+    "singleNodeEncodingTime": 6.38512e-07,
+    "benchCircuitProvingTime": 0.14464,
+    "commodityStorageDiscount": 10,
+    "filecoinFgrRequirement1": true,
+    "merkleHashFunction.name%": "pedersen",
+    "totalUntaperedChallenges": 32000,
+    "maximumAllowableSpaceGap": 0.02,
+    "singleChallengeKdfHashes": 14,
+    "singleSlothIterationTime": 123,
+    "storageToProofSizeFloat": 119304650,
+    "storageToProofSizeRatio": 119304650,
+    "layerPerformance.nodeBytes": 32,
+    "wallClockSealTimePerGib": 1866.4912,
+    "kdfHashFunction.constraints": 5162,
+    "layerPerformance.layerIndex": 10,
+    "layerPerformance.sectorSize": 34359738368,
+    "wallClockSealTimePerByte": 1.7383054e-06,
+    "zigzagBasicLayerChallenges": 2666.6667,
+    "betaHashFunction.constraints": 10324,
+    "kdfHashFunction.circuitTime": 0.65253,
+    "layerPerformance.circuitTime": 1593614.1,
+    "totalZigzagOtherConstraints": 0,
+    "totalZigzagSlothConstraints": 857712,
+    "alphaHashFunction.constraints": 1324,
+    "alphaMerkleHashFunctionName": "pedersen",
+    "betaHashFunction.circuitTime": 1.30506,
+    "filecoinRequirementsSatisfied": true,
+    "totalZigzagCircuitKdfHashes": 37408,
+    "alphaHashFunction.circuitTime": 0.153988,
+    "filecoinStorageRatioSatisfied": true,
+    "kdfHashFunction.hashFunction%": {
+      "circuitTime": 0.65253,
+      "hashFunctionName": "blake2sKdf",
+      "hashFunctionSize": 32,
+      "hashFunctionTime": 4.5608e-08,
+      "hashFunctionConstraints": 5162
+    },
+    "merkleHashFunction.constraints": 1324,
+    "betaHashFunction.hashFunction%": {
+      "circuitTime": 1.30506,
+      "hashFunctionName": "blake2s",
+      "hashFunctionSize": 32,
+      "hashFunctionTime": 9.1216e-08,
+      "hashFunctionConstraints": 10324
+    },
+    "kdfHashFunction.hashFunctions%": {
+      "tuples": [
+        {
+          "circuitTime": 0.153988,
+          "hashFunctionName": "pedersen",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 2.6156e-05,
+          "hashFunctionConstraints": 1324
+        },
+        {
+          "circuitTime": 0.65253,
+          "hashFunctionName": "blake2sKdf",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 4.5608e-08,
+          "hashFunctionConstraints": 5162
+        },
+        {
+          "circuitTime": 1.30506,
+          "hashFunctionName": "blake2s",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 9.1216e-08,
+          "hashFunctionConstraints": 10324
+        }
+      ]
+    },
+    "merkleHashFunction.circuitTime": 0.153988,
+    "singleChallengeInclusionProofs": 15,
+    "alphaHashFunction.hashFunction%": {
+      "circuitTime": 0.153988,
+      "hashFunctionName": "pedersen",
+      "hashFunctionSize": 32,
+      "hashFunctionTime": 2.6156e-05,
+      "hashFunctionConstraints": 1324
+    },
+    "betaHashFunction.hashFunctions%": {
+      "tuples": [
+        {
+          "circuitTime": 0.153988,
+          "hashFunctionName": "pedersen",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 2.6156e-05,
+          "hashFunctionConstraints": 1324
+        },
+        {
+          "circuitTime": 0.65253,
+          "hashFunctionName": "blake2sKdf",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 4.5608e-08,
+          "hashFunctionConstraints": 5162
+        },
+        {
+          "circuitTime": 1.30506,
+          "hashFunctionName": "blake2s",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 9.1216e-08,
+          "hashFunctionConstraints": 10324
+        }
+      ]
+    },
+    "layerPerformance.layerChallenges": 2672,
+    "singleSlothIterationConstraints": 321,
+    "alphaHashFunction.hashFunctions%": {
+      "tuples": [
+        {
+          "circuitTime": 0.153988,
+          "hashFunctionName": "pedersen",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 2.6156e-05,
+          "hashFunctionConstraints": 1324
+        },
+        {
+          "circuitTime": 0.65253,
+          "hashFunctionName": "blake2sKdf",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 4.5608e-08,
+          "hashFunctionConstraints": 5162
+        },
+        {
+          "circuitTime": 1.30506,
+          "hashFunctionName": "blake2s",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 9.1216e-08,
+          "hashFunctionConstraints": 10324
+        }
+      ]
+    },
+    "circuitProvingTimePerConstraint": 1.4010074e-05,
+    "layerPerformance.betaHashingTime": 97.94244,
+    "merkleHashFunction.hashFunction%": {
+      "circuitTime": 0.153988,
+      "hashFunctionName": "pedersen",
+      "hashFunctionSize": 32,
+      "hashFunctionTime": 2.6156e-05,
+      "hashFunctionConstraints": 1324
+    },
+    "minimumStorageToProofSizeRatio": 42949670,
+    "zigzagBasicLayerChallengeFactor": 333.33334,
+    "layerPerformance.alphaHashingTime": 0,
+    "layerPerformance.merkleTree.height": 30,
+    "layerPerformance.merkleTree.leaves": 1073741824,
+    "merkleHashFunction.hashFunctions%": {
+      "tuples": [
+        {
+          "circuitTime": 0.153988,
+          "hashFunctionName": "pedersen",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 2.6156e-05,
+          "hashFunctionConstraints": 1324
+        },
+        {
+          "circuitTime": 0.65253,
+          "hashFunctionName": "blake2sKdf",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 4.5608e-08,
+          "hashFunctionConstraints": 5162
+        },
+        {
+          "circuitTime": 1.30506,
+          "hashFunctionName": "blake2s",
+          "hashFunctionSize": 32,
+          "hashFunctionTime": 9.1216e-08,
+          "hashFunctionConstraints": 10324
+        }
+      ]
+    },
+    "singleChallengeSlothVerifications": 0,
+    "totalZigzagKdfHashingConstraints": 193100096,
+    "totalZigzagNonHashingConstraints": 857712,
+    "averageMonthlyIncomeDuringRampUp": 2083.3333,
+    "filecoinPorepRequirementsSatisfied": true,
+    "layerPerformance.challengeConstraints": 4718068,
+    "layerPerformance.challengeCircuitTime": 596.4125,
+    "layerPerformance.layerChallengeProofs": 15,
+    "layerPerformance.maxBetaMerkleHeight": 30,
+    "layerPerformance.merkleTree.heightRaw": 30,
+    "layerPerformance.merkleTree.nodeBytes": 32,
+    "layerPerformance.betaHashFunction.time": 9.1216e-08,
+    "layerPerformance.merkleTree.betaHeight": 30,
+    "layerPerformance.merkleTree.sectorSize": 34359738368,
+    "layerPerformance.alphaHashFunction.time": 2.6156e-05,
+    "layerPerformance.merkleTree.alphaHeight": 0,
+    "layerPerformance.merkleTree.alphaLeaves": 1,
+    "layerPerformance.challengeKdfConstraints": 72268,
+    "layerPerformance.challengeKdfCircuitTime": 9.13542,
+    "layerPerformance.inclusionProofConstraints": 309720,
+    "layerPerformance.merkleTree.betaHashCount": 1073741823,
+    "layerPerformance.singleChallengeKdfHashes": 14,
+    "filecoinPorepSecurityRequirementsSatisfied": true,
+    "layerPerformance.inclusionProofCircuitTime": 39.151802,
+    "layerPerformance.merkleTree.alphaHashCount": 0,
+    "layerPerformance.merkleTree.totalHashCount": 1073741823,
+    "layerPerformance.kdfHashFunction.constraints": 5162,
+    "layerPerformance.betaHashFunction.constraints": 10324,
+    "layerPerformance.kdfHashFunction.circuitTime": 0.65253,
+    "layerPerformance.alphaHashFunction.constraints": 1324,
+    "layerPerformance.betaHashFunction.circuitTime": 1.30506,
+    "layerPerformance.challengeInclusionConstraints": 4645800,
+    "layerPerformance.alphaHashFunction.circuitTime": 0.153988,
+    "layerPerformance.betaInclusionProofConstraints": 309720,
+    "layerPerformance.challengeInclusionCircuitTime": 587.27704,
+    "layerPerformance.alphaInclusionProofConstraints": 0,
+    "layerPerformance.betaInclusionProofCircuitTime": 39.151802,
+    "layerPerformance.singleChallengeInclusionProofs": 15,
+    "layerPerformance.alphaInclusionProofCircuitTime": 0,
+    "layerPerformance.circuitProvingTimePerConstraint": 1.4010074e-05,
+    "layerPerformance.merkleTree.betaInclusionProofHashLength": 30,
+    "layerPerformance.merkleTree.alphaInclusionProofHashLength": 0,
+    "layerPerformance.merkleTree.totalInclusionProofHashLength": 30
+  }
+]
+#+end_example
+

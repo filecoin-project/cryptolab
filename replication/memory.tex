@@ -1,0 +1,193 @@
+% Created 2019-07-27 Sat 19:19
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\author{Chhi'med Kunzang}
+\date{\today}
+\title{memory}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 25.3.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{ZigZag Replication Memory Requirements (as multiple of sector size)}
+\label{sec-1}
+\subsection{Why does it matter?}
+\label{sec-1-1}
+\begin{itemize}
+\item RAM is expensive and requires expensive configurations at high levels.
+\item We consider 64GiB the limit for ordinary operation.
+\begin{itemize}
+\item Someone might always prefer more, but we ideally will not require it.
+\end{itemize}
+\item Larger sectors are more economical from both a CPU and proof size perspective.
+\end{itemize}
+\subsection{Merkle trees}
+\label{sec-1-2}
+\begin{itemize}
+\item Most naively, we need enough memory to hold all trees at once.
+\item Improve by offloading trees to disk and reload for proofs.
+\item Reduce space usage per tree.
+\item Best memory usage holds log2 nodes but uses more CPU.
+\end{itemize}
+\subsection{Encoding}
+\label{sec-1-3}
+\begin{itemize}
+\item We want replication time to be strictly limited by linear encoding time.
+\item This means no waiting for parents to load.
+\item Parent distribution is random and resists locality.
+\item Hashing (currently blake2s) a parent for the KDF is faster than random-access latency on disk.
+\item This seems to imply we need to keep the entire replica in memory, if we don't want to sacrifice speed (which we don't).
+\item If we could take advantage of sequential reads, using disk might be fast enough to outrun hashing.
+\end{itemize}
+\subsubsection{Idea: Ensure parents need not be accessed randomly.}
+\label{sec-1-3-1}
+\begin{itemize}
+\item This implies greatly increased total space, since each parent has (on average) P (currently 13) children.
+\item Two approaches using multiple machines:
+\begin{itemize}
+\item Allow replicating sectors larger than 64GiB but still requiring at least as much RAM as the sector size (on multiple machines).
+\item Allow replicating sectors larger than the total RAM.
+\end{itemize}
+\item Start with the first, less ambitous target and build up to the least bounded we can.
+\end{itemize}
+\begin{enumerate}
+\item The way that doesn't work
+\label{sec-1-3-1-1}
+\begin{itemize}
+\item Just write each parent to the \textasciitilde{}13 locations optimal for encoding each of its children.
+\begin{itemize}
+\item Unfortunately, this trades random reads for random writes, which are if anything more expensive.
+\end{itemize}
+\end{itemize}
+\item Divide responsibility for one sector across multiple machines.
+\label{sec-1-3-1-2}
+\begin{itemize}
+\item If writing to disk, we \textbf{can} do so in parallel. With enough machines, this makes the amortized cost of writing fast enough.
+\item If holding in memory we can replicate sector sizes greater than our (64 GiB) RAM limit on any given machine.
+\begin{itemize}
+\item We will need much more total memory across all machines (order of * P) than the sector size, though.
+\end{itemize}
+\end{itemize}
+\item Algorithm
+\label{sec-1-3-1-3}
+\begin{enumerate}
+\item Basic Operation
+\label{sec-1-3-1-3-1}
+\begin{itemize}
+\item Each unit is responsible for encoding N consecutive nodes and runs on a separate machine.
+\item Layout is [[Node1\ldots{}Parents1]\ldots{}[NodeN\ldots{}ParentsN]] = N * ((1 + P) * 32) bytes per unit.
+\item Units are arranged in a ring, such that each unit has a 'next unit'.
+\item Units are ordered such that consecutive units are responsible for consecutive ranges of nodes.
+\item After encoding a node, the encoding unit sends the node's index and new value to the next unit and also processes it.
+\begin{itemize}
+\item The next unit forward the message to its next unit and begins processing.
+\item This continues until all units have seen the message.
+\end{itemize}
+\item Each unit searches its layout for locations where the new node occurs in a 'parent' location, and stores the value there.
+\begin{itemize}
+\item Naively, this requires the parent indexes to be colocated with the data. We will eliminate this later.
+\item The originating unit also searches and writes the new value anywhere necessary in its remaining (future) layout.
+\end{itemize}
+\item At any time, one unit is responsible for encoding the current node.
+\begin{itemize}
+\item Assuming all messages have been processed, it is guaranteed that all of the current parents have been received.
+\item Therefore, the current parents exist in contiguous memory and can be looked up directly.
+\end{itemize}
+\item When a given unit reaches the end of the range of nodes for which it has responsibility, encoding passes to the next node.
+\item Upon reaching the end of a layer, the direction of encoding reverses, and the process repeats with order of units and nodes reversed.
+\begin{itemize}
+\item This requires a change of layout for each unit.
+\end{itemize}
+\item NOTE: There is clearly room for optimization, since with all data held in RAM, we do not need it to be sequential.
+\begin{itemize}
+\item We will offload some of this contiguous memory to disk.
+\end{itemize}
+\end{itemize}
+\item How are matching parent locations found?
+\label{sec-1-3-1-3-2}
+\begin{itemize}
+\item We can precompute a correctly-ordered map and store it alongside the node-parents layout.
+\item To precompute: record the locations (in layout coordinates) of each parent in layout.
+\begin{itemize}
+\item If parent is not contained in unit's layout, no entry for parent is included in the map.
+\end{itemize}
+\item Maintain a pointer/index to the current map entry, advancing as each matching node is processed.
+\item As each node is processed, its corresponding map entry can be immediately checked. If no match, do nothing.
+\item If the procesesd node matches the current map entry, store the node in each of the entry's parent locations, and advance the entry pointer.
+\end{itemize}
+\item How do we reduce memory?
+\label{sec-1-3-1-3-3}
+\begin{itemize}
+\item As described here, more than P (13) times the sector size is required to replicate one sector.
+\item Since both the map and the layout eventually contain correctly ordered sequence data, they are well-suited to non-random reads.
+\item We can reduce total memory by choosing a percentage of both the map and the layout to store on disk.
+\item Writes to the memory-resident portion remain fast.
+\item Writes to the currently disk-resident portion become random-access and are slow.
+\item However, since these writes are spread across multiple machines, each with its own disk, the cost of writes can be amortized.
+\item Define one random-access write to be a factor of W slower than one KDF hash (ignoring the extra hash for the replica id).
+\item Define the fraction of each unit's map/layout which is stored to disk as D.
+\item For each node processed, we make P writes.
+\item Of these, D * P are random-access.
+\item In order not to be slower than encoding, we need that D * P * W <= 1.
+\item For example, suppose random writes are 5 times slower than KDF hashes. Then W = 1/5, P = 13, and D <= 5/13.
+\item That is, we can cache up to 0.385 of each unit.
+\end{itemize}
+\item Is it worth it? And if so, at what scale?
+\label{sec-1-3-1-3-4}
+\begin{itemize}
+\item For now, estimate that we can cache 1/3 of each unit's data.
+\item Concrete example:
+\begin{itemize}
+\item Ignoring the cost of the map, for now, total memory for 1TiB would be 14TiB.
+\item Caching 1/3, we are left with 9.33TiB, or roughly 145 * 64GiB machines.
+\item Assume this allows us to uninterruptedly encode.
+\item Then we are able to replicate 1TiB using the same amount of RAM as could otherwise be used to replicate 9.33TiB.
+\end{itemize}
+\item In order for this enormous overhead to be worthwhile, we would need to see a 9.33X benefit in combined proof size and proving CPU time savings.
+\item Proof size scales linearly with sector size, proving time logarithmically.
+\item Therefore, although we pay a premium of 9.3X, we save 145X in proof size, and 20X in proving CPU time.
+\item\relax [Since we ignored and did not estimate the cost of the map, these numbers may be off by a relatively small factor.]
+\item So, at scale, maybe it is worth it. In this model, practical sector size is determined by replication speed and desired turnaround time for sealing.
+\end{itemize}
+\item Further considerations
+\label{sec-1-3-1-3-5}
+\begin{itemize}
+\item Estimate the size of the unit's map.
+\item NOTE: even assuming calculations are correct, all numbers above are based on the hypothetical and unresearched 5x difference between one KDF hash and one random write.
+\item Which parts of the map/layout are cached, and how?
+\begin{itemize}
+\item Since we want current reads to be fast, cache the last, not first portion.
+\item As replication proceeds, we can reclaim memory which will not be needed again for this layer.
+\item Periodically flush the encoded nodes' map/layout to disk and replace it with disk-resident map/layout.
+\item At this point, we're manually managing disk paging.
+\item Our data is no longer random access.
+\item Can we just mmap the whole (correctly sized) data and let the system's virtual memory manage the problem for us?
+\begin{itemize}
+\item Maybe not, since the random writes may wreak havoc with this. Needs better understanding.
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{enumerate}
+\end{enumerate}
+% Emacs 25.3.1 (Org mode 8.2.10)
+\end{document}
