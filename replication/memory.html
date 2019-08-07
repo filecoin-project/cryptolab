@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>memory</title>
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/bigblow/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/bigblow/css/bigblow.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/bigblow/css/hideshow.css"/>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery-ui-1.10.2.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery.localscroll-min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery.scrollTo-1.4.3.1-min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery.zclip.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/bigblow.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/hideshow.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">memory</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. ZigZag Replication Memory Requirements (as multiple of sector size)</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Why does it matter?</a></li>
+<li><a href="#sec-1-2">1.2. Merkle trees</a></li>
+<li><a href="#sec-1-3">1.3. Encoding</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> ZigZag Replication Memory Requirements (as multiple of sector size)</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Why does it matter?</h3>
+<div class="outline-text-3" id="text-1-1">
+<ul class="org-ul">
+<li>RAM is expensive and requires expensive configurations at high levels.
+</li>
+<li>We consider 64GiB the limit for ordinary operation.
+<ul class="org-ul">
+<li>Someone might always prefer more, but we ideally will not require it.
+</li>
+</ul>
+</li>
+<li>Larger sectors are more economical from both a CPU and proof size perspective.
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Merkle trees</h3>
+<div class="outline-text-3" id="text-1-2">
+<ul class="org-ul">
+<li>Most naively, we need enough memory to hold all trees at once.
+</li>
+<li>Improve by offloading trees to disk and reload for proofs.
+</li>
+<li>Reduce space usage per tree.
+</li>
+<li>Best memory usage holds log2 nodes but uses more CPU.
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Encoding</h3>
+<div class="outline-text-3" id="text-1-3">
+<ul class="org-ul">
+<li>We want replication time to be strictly limited by linear encoding time.
+</li>
+<li>This means no waiting for parents to load.
+</li>
+<li>Parent distribution is random and resists locality.
+</li>
+<li>Hashing (currently blake2s) a parent for the KDF is faster than random-access latency on disk.
+</li>
+<li>This seems to imply we need to keep the entire replica in memory, if we don't want to sacrifice speed (which we don't).
+</li>
+<li>If we could take advantage of sequential reads, using disk might be fast enough to outrun hashing.
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-1-3-1" name="sec-1-3-1"></a>Idea: Ensure parents need not be accessed randomly.<br  /><div class="outline-text-4" id="text-1-3-1">
+<ul class="org-ul">
+<li>This implies greatly increased total space, since each parent has (on average) P (currently 13) children.
+</li>
+<li>Two approaches using multiple machines:
+<ul class="org-ul">
+<li>Allow replicating sectors larger than 64GiB but still requiring at least as much RAM as the sector size (on multiple machines).
+</li>
+<li>Allow replicating sectors larger than the total RAM.
+</li>
+</ul>
+</li>
+<li>Start with the first, less ambitous target and build up to the least bounded we can.
+</li>
+</ul>
+</div>
+<ol class="org-ol"><li><a id="sec-1-3-1-1" name="sec-1-3-1-1"></a>The way that doesn't work<br  /><div class="outline-text-5" id="text-1-3-1-1">
+<ul class="org-ul">
+<li>Just write each parent to the ~13 locations optimal for encoding each of its children.
+<ul class="org-ul">
+<li>Unfortunately, this trades random reads for random writes, which are if anything more expensive.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-1-3-1-2" name="sec-1-3-1-2"></a>Divide responsibility for one sector across multiple machines.<br  /><div class="outline-text-5" id="text-1-3-1-2">
+<ul class="org-ul">
+<li>If writing to disk, we <b>can</b> do so in parallel. With enough machines, this makes the amortized cost of writing fast enough.
+</li>
+<li>If holding in memory we can replicate sector sizes greater than our (64 GiB) RAM limit on any given machine.
+<ul class="org-ul">
+<li>We will need much more total memory across all machines (order of * P) than the sector size, though.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-1-3-1-3" name="sec-1-3-1-3"></a>Algorithm<br  /><ol class="org-ol"><li><a id="sec-1-3-1-3-1" name="sec-1-3-1-3-1"></a>Basic Operation<br  /><div class="outline-text-6" id="text-1-3-1-3-1">
+<ul class="org-ul">
+<li>Each unit is responsible for encoding N consecutive nodes and runs on a separate machine.
+</li>
+<li>Layout is [[Node1&#x2026;Parents1]&#x2026;[NodeN&#x2026;ParentsN]] = N * ((1 + P) * 32) bytes per unit.
+</li>
+<li>Units are arranged in a ring, such that each unit has a 'next unit'.
+</li>
+<li>Units are ordered such that consecutive units are responsible for consecutive ranges of nodes.
+</li>
+<li>After encoding a node, the encoding unit sends the node's index and new value to the next unit and also processes it.
+<ul class="org-ul">
+<li>The next unit forward the message to its next unit and begins processing.
+</li>
+<li>This continues until all units have seen the message.
+</li>
+</ul>
+</li>
+<li>Each unit searches its layout for locations where the new node occurs in a 'parent' location, and stores the value there.
+<ul class="org-ul">
+<li>Naively, this requires the parent indexes to be colocated with the data. We will eliminate this later.
+</li>
+<li>The originating unit also searches and writes the new value anywhere necessary in its remaining (future) layout.
+</li>
+</ul>
+</li>
+<li>At any time, one unit is responsible for encoding the current node.
+<ul class="org-ul">
+<li>Assuming all messages have been processed, it is guaranteed that all of the current parents have been received.
+</li>
+<li>Therefore, the current parents exist in contiguous memory and can be looked up directly.
+</li>
+</ul>
+</li>
+<li>When a given unit reaches the end of the range of nodes for which it has responsibility, encoding passes to the next node.
+</li>
+<li>Upon reaching the end of a layer, the direction of encoding reverses, and the process repeats with order of units and nodes reversed.
+<ul class="org-ul">
+<li>This requires a change of layout for each unit.
+</li>
+</ul>
+</li>
+<li>NOTE: There is clearly room for optimization, since with all data held in RAM, we do not need it to be sequential.
+<ul class="org-ul">
+<li>We will offload some of this contiguous memory to disk.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-1-3-1-3-2" name="sec-1-3-1-3-2"></a>How are matching parent locations found?<br  /><div class="outline-text-6" id="text-1-3-1-3-2">
+<ul class="org-ul">
+<li>We can precompute a correctly-ordered map and store it alongside the node-parents layout.
+</li>
+<li>To precompute: record the locations (in layout coordinates) of each parent in layout.
+<ul class="org-ul">
+<li>If parent is not contained in unit's layout, no entry for parent is included in the map.
+</li>
+</ul>
+</li>
+<li>Maintain a pointer/index to the current map entry, advancing as each matching node is processed.
+</li>
+<li>As each node is processed, its corresponding map entry can be immediately checked. If no match, do nothing.
+</li>
+<li>If the procesesd node matches the current map entry, store the node in each of the entry's parent locations, and advance the entry pointer.
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-1-3-1-3-3" name="sec-1-3-1-3-3"></a>How do we reduce memory?<br  /><div class="outline-text-6" id="text-1-3-1-3-3">
+<ul class="org-ul">
+<li>As described here, more than P (13) times the sector size is required to replicate one sector.
+</li>
+<li>Since both the map and the layout eventually contain correctly ordered sequence data, they are well-suited to non-random reads.
+</li>
+<li>We can reduce total memory by choosing a percentage of both the map and the layout to store on disk.
+</li>
+<li>Writes to the memory-resident portion remain fast.
+</li>
+<li>Writes to the currently disk-resident portion become random-access and are slow.
+</li>
+<li>However, since these writes are spread across multiple machines, each with its own disk, the cost of writes can be amortized.
+</li>
+<li>Define one random-access write to be a factor of W slower than one KDF hash (ignoring the extra hash for the replica id).
+</li>
+<li>Define the fraction of each unit's map/layout which is stored to disk as D.
+</li>
+<li>For each node processed, we make P writes.
+</li>
+<li>Of these, D * P are random-access.
+</li>
+<li>In order not to be slower than encoding, we need that D * P * W &lt;= 1.
+</li>
+<li>For example, suppose random writes are 5 times slower than KDF hashes. Then W = 1/5, P = 13, and D &lt;= 5/13.
+</li>
+<li>That is, we can cache up to 0.385 of each unit.
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-1-3-1-3-4" name="sec-1-3-1-3-4"></a>Is it worth it? And if so, at what scale?<br  /><div class="outline-text-6" id="text-1-3-1-3-4">
+<ul class="org-ul">
+<li>For now, estimate that we can cache 1/3 of each unit's data.
+</li>
+<li>Concrete example:
+<ul class="org-ul">
+<li>Ignoring the cost of the map, for now, total memory for 1TiB would be 14TiB.
+</li>
+<li>Caching 1/3, we are left with 9.33TiB, or roughly 145 * 64GiB machines.
+</li>
+<li>Assume this allows us to uninterruptedly encode.
+</li>
+<li>Then we are able to replicate 1TiB using the same amount of RAM as could otherwise be used to replicate 9.33TiB.
+</li>
+</ul>
+</li>
+<li>In order for this enormous overhead to be worthwhile, we would need to see a 9.33X benefit in combined proof size and proving CPU time savings.
+</li>
+<li>Proof size scales linearly with sector size, proving time logarithmically.
+</li>
+<li>Therefore, although we pay a premium of 9.3X, we save 145X in proof size, and 20X in proving CPU time.
+</li>
+<li>[Since we ignored and did not estimate the cost of the map, these numbers may be off by a relatively small factor.]
+</li>
+<li>So, at scale, maybe it is worth it. In this model, practical sector size is determined by replication speed and desired turnaround time for sealing.
+</li>
+</ul>
+</div>
+</li>
+<li><a id="sec-1-3-1-3-5" name="sec-1-3-1-3-5"></a>Further considerations<br  /><div class="outline-text-6" id="text-1-3-1-3-5">
+<ul class="org-ul">
+<li>Estimate the size of the unit's map.
+</li>
+<li>NOTE: even assuming calculations are correct, all numbers above are based on the hypothetical and unresearched 5x difference between one KDF hash and one random write.
+</li>
+<li>Which parts of the map/layout are cached, and how?
+<ul class="org-ul">
+<li>Since we want current reads to be fast, cache the last, not first portion.
+</li>
+<li>As replication proceeds, we can reclaim memory which will not be needed again for this layer.
+</li>
+<li>Periodically flush the encoded nodes' map/layout to disk and replace it with disk-resident map/layout.
+</li>
+<li>At this point, we're manually managing disk paging.
+</li>
+<li>Our data is no longer random access.
+</li>
+<li>Can we just mmap the whole (correctly sized) data and let the system's virtual memory manage the problem for us?
+<ul class="org-ul">
+<li>Maybe not, since the random writes may wreak havoc with this. Needs better understanding.
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</li></ol>
+</li></ol>
+</li></ol>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

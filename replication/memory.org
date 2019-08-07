@@ -1,3 +1,6 @@
+#+SETUPFILE: ../theme-bigblow.setup 
+#+OPTIONS: author:nil creator:nil timestamp:nil
+
 * ZigZag Replication Memory Requirements (as multiple of sector size)
 ** Why does it matter?
 - RAM is expensive and requires expensive configurations at high levels.

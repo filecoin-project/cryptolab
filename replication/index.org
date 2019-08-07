@@ -1,0 +1,6 @@
+#+SETUPFILE: ../theme-bigblow.setup 
+#+OPTIONS: author:nil creator:nil timestamp:nil
+
+* Replication
+- [[file:replication.org][Replication Calculations]]
+- [[file:memory.org][Replication Memory]]

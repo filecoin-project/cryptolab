@@ -1,0 +1,2061 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>replication</title>
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/bigblow/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/bigblow/css/bigblow.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/bigblow/css/hideshow.css"/>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery-ui-1.10.2.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery.localscroll-min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery.scrollTo-1.4.3.1-min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/jquery.zclip.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/bigblow.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/bigblow/js/hideshow.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">replication</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Current ZigZag</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Sector</a></li>
+<li><a href="#sec-1-2">1.2. Replication</a></li>
+<li><a href="#sec-1-3">1.3. Sealing</a></li>
+<li><a href="#sec-1-4">1.4. Filecoin Growth Rate (FGR) )</a></li>
+<li><a href="#sec-1-5">1.5. Hybrid Merkle Trees</a></li>
+<li><a href="#sec-1-6">1.6. Inputs</a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2. Alternate ZigZag Projections</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Sector</a></li>
+<li><a href="#sec-2-2">2.2. Replication</a></li>
+<li><a href="#sec-2-3">2.3. Sealing</a></li>
+<li><a href="#sec-2-4">2.4. FGR</a></li>
+<li><a href="#sec-2-5">2.5. Hybrid Merkle Trees</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Schema</a></li>
+<li><a href="#sec-4">4. JSON</a></li>
+</ul>
+</div>
+</div>
+<p>
+ZigZag Replication
+</p>
+
+<p>
+<span class="timestamp-wrapper"><span class="timestamp">[2019-08-06 05:46:07 PM]</span></span>:  Generated from commit <a href="https://github.com/filecoin-project/orient/commit/6e2f0b85075db00a92257a670cd12e4bbe713578">6e2f0b85075db00a92257a670cd12e4bbe713578
+</a>
+</p>
+<pre class="example">
+Initialized current ZigZag with 32 GiB sectors. Spedersen: 1; Blake2s speedup: 1 GPU speedup: 1
+
+Intialized Alternate ZigZag with 32 GiB sectors. Spedersen: 1.7; Blake2s speedup: 1.666 GPU speedup: 3
+</pre>
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Current ZigZag</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Sector</h3>
+<div class="outline-text-3" id="text-1-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">SECTOR-GIB</td>
+<td class="right">SECTOR-SIZE</td>
+</tr>
+
+<tr>
+<td class="right">32</td>
+<td class="right">34359738368</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Replication</h3>
+<div class="outline-text-3" id="text-1-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">REPLICATION-TIME</td>
+<td class="right">REPLICATION-TIME-PER-GIB</td>
+</tr>
+
+<tr>
+<td class="right">6855.9707</td>
+<td class="right">214.24908</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Sealing</h3>
+<div class="outline-text-3" id="text-1-3">
+</div><ol class="org-ol"><li><a id="sec-1-3-1" name="sec-1-3-1"></a><b>No Hybrid Merkle</b><br  /><div class="outline-text-4" id="text-1-3-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">SEAL-PARALLELISM</td>
+<td class="right">WALL-CLOCK-SEAL-TIME</td>
+<td class="right">GIB-SEAL-COST</td>
+<td class="right">SEAL-TIME</td>
+<td class="right">GIB-HOUR-SEAL-INVESTMENT</td>
+<td class="right">GIB-SEAL-TIME</td>
+<td class="right">WALL-CLOCK-SEAL-TIME-PER-GIB</td>
+</tr>
+
+<tr>
+<td class="right">14</td>
+<td class="right">67107.86</td>
+<td class="right">0.18755668</td>
+<td class="right">946366.06</td>
+<td class="right">410.74915</td>
+<td class="right">29573.94</td>
+<td class="right">2097.1206</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+
+<li><a id="sec-1-3-2" name="sec-1-3-2"></a><b>Hybrid Merkle</b><br  /><div class="outline-text-4" id="text-1-3-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">SEAL-PARALLELISM</td>
+<td class="right">WALL-CLOCK-SEAL-TIME</td>
+<td class="right">GIB-SEAL-COST</td>
+<td class="right">SEAL-TIME</td>
+<td class="right">GIB-HOUR-SEAL-INVESTMENT</td>
+<td class="right">GIB-SEAL-TIME</td>
+<td class="right">WALL-CLOCK-SEAL-TIME-PER-GIB</td>
+</tr>
+
+<tr>
+<td class="right">14</td>
+<td class="right">59727.72</td>
+<td class="right">0.16707969</td>
+<td class="right">843044.06</td>
+<td class="right">365.90454</td>
+<td class="right">26345.127</td>
+<td class="right">1866.4912</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+
+<li><a id="sec-1-3-3" name="sec-1-3-3"></a><b>Hybrid Savings</b><br  /><div class="outline-text-4" id="text-1-3-3">
+<pre class="example">
+Hybrid SEAL-TIME (CPU) is 89.08% of non-hybrid SEAL-TIME.
+This is a savings of 10.92%.
+
+Hybrid WALL-CLOCK-SEAL-TIME (CPU) is 89.00% of non-hybrid WALL-CLOCK-SEAL-TIME.
+This is a savings of 11.00%.
+</pre>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4"><span class="section-number-3">1.4</span> Filecoin Growth Rate (FGR) )</h3>
+<div class="outline-text-3" id="text-1-4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">ONE-YEAR-FGR</td>
+<td class="right">TWO-YEAR-FGR</td>
+<td class="right">THREE-YEAR-FGR</td>
+</tr>
+
+<tr>
+<td class="right">1.1387482</td>
+<td class="right">3.5830317</td>
+<td class="right">6.027315</td>
+</tr>
+</tbody>
+</table>
+<p>
+)
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-5" class="outline-3">
+<h3 id="sec-1-5"><span class="section-number-3">1.5</span> Hybrid Merkle Trees</h3>
+<div class="outline-text-3" id="text-1-5">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">CIRCUIT-TIME</td>
+<td class="right">HASHING-TIME</td>
+<td class="right">LAYER-INDEX</td>
+<td class="right">CONSTRAINTS</td>
+<td class="right">LOWEST-TIME</td>
+<td class="right">OPTIMAL-BETA-MERKLE-HEIGHT</td>
+</tr>
+
+<tr>
+<td class="right">0.0</td>
+<td class="right">97.94244</td>
+<td class="right">0</td>
+<td class="right">0</td>
+<td class="right">97.94244</td>
+<td class="right">30</td>
+</tr>
+
+<tr>
+<td class="right">20836.523</td>
+<td class="right">3596.2986</td>
+<td class="right">1</td>
+<td class="right">171690880</td>
+<td class="right">24432.822</td>
+<td class="right">3</td>
+</tr>
+
+<tr>
+<td class="right">20836.523</td>
+<td class="right">3596.2986</td>
+<td class="right">2</td>
+<td class="right">171690880</td>
+<td class="right">24432.822</td>
+<td class="right">3</td>
+</tr>
+
+<tr>
+<td class="right">20836.523</td>
+<td class="right">3596.2986</td>
+<td class="right">3</td>
+<td class="right">171690880</td>
+<td class="right">24432.822</td>
+<td class="right">3</td>
+</tr>
+
+<tr>
+<td class="right">27110.928</td>
+<td class="right">7094.655</td>
+<td class="right">4</td>
+<td class="right">225136320</td>
+<td class="right">34205.582</td>
+<td class="right">2</td>
+</tr>
+
+<tr>
+<td class="right">39762.69</td>
+<td class="right">7094.655</td>
+<td class="right">5</td>
+<td class="right">330199936</td>
+<td class="right">46857.348</td>
+<td class="right">2</td>
+</tr>
+
+<tr>
+<td class="right">50527.54</td>
+<td class="right">14091.367</td>
+<td class="right">6</td>
+<td class="right">424019904</td>
+<td class="right">64618.906</td>
+<td class="right">1</td>
+</tr>
+
+<tr>
+<td class="right">75791.31</td>
+<td class="right">14091.367</td>
+<td class="right">7</td>
+<td class="right">636029856</td>
+<td class="right">89882.68</td>
+<td class="right">1</td>
+</tr>
+
+<tr>
+<td class="right">93488.586</td>
+<td class="right">28084.791</td>
+<td class="right">8</td>
+<td class="right">796337056</td>
+<td class="right">121573.375</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="right">139919.16</td>
+<td class="right">28084.791</td>
+<td class="right">9</td>
+<td class="right">1191833312</td>
+<td class="right">168003.95</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="right">209565.02</td>
+<td class="right">28084.791</td>
+<td class="right">10</td>
+<td class="right">1785077696</td>
+<td class="right">237649.81</td>
+<td class="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-1-6" class="outline-3">
+<h3 id="sec-1-6"><span class="section-number-3">1.6</span> Inputs</h3>
+<div class="outline-text-3" id="text-1-6">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">LAYERS</td>
+<td class="right">10</td>
+</tr>
+
+<tr>
+<td class="left">SEAL-GHZ</td>
+<td class="right">5.0</td>
+</tr>
+
+<tr>
+<td class="left">NODE-BYTES</td>
+<td class="right">32</td>
+</tr>
+
+<tr>
+<td class="left">PARTITIONS</td>
+<td class="right">1</td>
+</tr>
+
+<tr>
+<td class="left">SECTOR-GIB</td>
+<td class="right">32</td>
+</tr>
+
+<tr>
+<td class="left">SLOTH-ITER</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="left">BASE-DEGREE</td>
+<td class="right">5</td>
+</tr>
+
+<tr>
+<td class="left">CPU-GHZ-COST</td>
+<td class="right">10.0</td>
+</tr>
+
+<tr>
+<td class="left">ZIGZAG-DELTA</td>
+<td class="right">0.003</td>
+</tr>
+
+<tr>
+<td class="left">ZIGZAG-TAPER</td>
+<td class="right">1/3</td>
+</tr>
+
+<tr>
+<td class="left">ANNUAL-INCOME</td>
+<td class="right">50000.0</td>
+</tr>
+
+<tr>
+<td class="left">ZIGZAG-LAMBDA</td>
+<td class="right">8</td>
+</tr>
+
+<tr>
+<td class="left">HASH-FUNCTIONS</td>
+<td class="right">((FILECOIN::HASH-FUNCTION-TIME FILECOIN::HASH-FUNCTION-CONSTRAINTS FILECOIN::HASH-FUNCTION-NAME CIRCUIT-TIME FILECOIN::HASH-FUNCTION-SIZE) (2.6156e-05 1324 :PEDERSEN 0.153988 32) (4.5608e-08 5162 :BLAKE2S-KDF 0.65253 32) (9.1216e-08 10324 :BLAKE2S 1.30506 32))</td>
+</tr>
+
+<tr>
+<td class="left">TIB-DRIVE-COST</td>
+<td class="right">30.0</td>
+</tr>
+
+<tr>
+<td class="left">ZIGZAG-EPSILON</td>
+<td class="right">0.007</td>
+</tr>
+
+<tr>
+<td class="left">EXPANSION-DEGREE</td>
+<td class="right">8</td>
+</tr>
+
+<tr>
+<td class="left">SEAL-PARALLELISM</td>
+<td class="right">14</td>
+</tr>
+
+<tr>
+<td class="left">AWS-GLACIER-PRICE</td>
+<td class="right">0.004</td>
+</tr>
+
+<tr>
+<td class="left">MUST-HAVE-FILECOIN</td>
+<td class="right">T</td>
+</tr>
+
+<tr>
+<td class="left">MINIMUM-ONE-YEAR-FGR</td>
+<td class="right">-2</td>
+</tr>
+
+<tr>
+<td class="left">MINIMUM-TWO-YEAR-FGR</td>
+<td class="right">0.25</td>
+</tr>
+
+<tr>
+<td class="left">UP-FRONT-MEMORY-COST</td>
+<td class="right">0.0</td>
+</tr>
+
+<tr>
+<td class="left">KDF-HASH-FUNCTION-NAME</td>
+<td class="right">BLAKE2S-KDF</td>
+</tr>
+
+<tr>
+<td class="left">MAX-BETA-MERKLE-HEIGHT</td>
+<td class="right">30</td>
+</tr>
+
+<tr>
+<td class="left">MINIMUM-THREE-YEAR-FGR</td>
+<td class="right">1.0</td>
+</tr>
+
+<tr>
+<td class="left">BETA-HASH-FUNCTION-NAME</td>
+<td class="right">BLAKE2S</td>
+</tr>
+
+<tr>
+<td class="left">ALPHA-HASH-FUNCTION-NAME</td>
+<td class="right">PEDERSEN</td>
+</tr>
+
+<tr>
+<td class="left">MINER-MONTHS-TO-CAPACITY</td>
+<td class="right">3</td>
+</tr>
+
+<tr>
+<td class="left">BENCH-CIRCUIT-CONSTRAINTS</td>
+<td class="right">10324</td>
+</tr>
+
+<tr>
+<td class="left">MERKLE-HASH-FUNCTION-NAME</td>
+<td class="right">PEDERSEN</td>
+</tr>
+
+<tr>
+<td class="left">SINGLE-CIRCUIT-PROOF-SIZE</td>
+<td class="right">192</td>
+</tr>
+
+<tr>
+<td class="left">BENCH-CIRCUIT-PROVING-TIME</td>
+<td class="right">0.14464</td>
+</tr>
+
+<tr>
+<td class="left">COMMODITY-STORAGE-DISCOUNT</td>
+<td class="right">10</td>
+</tr>
+
+<tr>
+<td class="left">MAXIMUM-ALLOWABLE-SPACE-GAP</td>
+<td class="right">0.02</td>
+</tr>
+
+<tr>
+<td class="left">SINGLE-SLOTH-ITERATION-TIME</td>
+<td class="right">123</td>
+</tr>
+
+<tr>
+<td class="left">TOTAL-ZIGZAG-OTHER-CONSTRAINTS</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="left">ALPHA-MERKLE-HASH-FUNCTION-NAME</td>
+<td class="right">PEDERSEN</td>
+</tr>
+
+<tr>
+<td class="left">SINGLE-SLOTH-ITERATION-CONSTRAINTS</td>
+<td class="right">321</td>
+</tr>
+
+<tr>
+<td class="left">MINIMUM-STORAGE-TO-PROOF-SIZE-RATIO</td>
+<td class="right">1073741824/25</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Alternate ZigZag Projections</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Sector</h3>
+<div class="outline-text-3" id="text-2-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">SECTOR-GIB</td>
+<td class="right">SECTOR-SIZE</td>
+</tr>
+
+<tr>
+<td class="right">32</td>
+<td class="right">34359738368</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Replication</h3>
+<div class="outline-text-3" id="text-2-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">REPLICATION-TIME</td>
+<td class="right">REPLICATION-TIME-PER-GIB</td>
+</tr>
+
+<tr>
+<td class="right">4115.2285</td>
+<td class="right">128.60089</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Sealing</h3>
+<div class="outline-text-3" id="text-2-3">
+</div><ol class="org-ol"><li><a id="sec-2-3-1" name="sec-2-3-1"></a><b>No Hybrid Merkle</b><br  /><div class="outline-text-4" id="text-2-3-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">SEAL-PARALLELISM</td>
+<td class="right">WALL-CLOCK-SEAL-TIME</td>
+<td class="right">GIB-SEAL-COST</td>
+<td class="right">SEAL-TIME</td>
+<td class="right">GIB-HOUR-SEAL-INVESTMENT</td>
+<td class="right">GIB-SEAL-TIME</td>
+<td class="right">WALL-CLOCK-SEAL-TIME-PER-GIB</td>
+</tr>
+
+<tr>
+<td class="right">14</td>
+<td class="right">27994.111</td>
+<td class="right">0.07848823</td>
+<td class="right">396032.78</td>
+<td class="right">171.88922</td>
+<td class="right">12376.024</td>
+<td class="right">874.816</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+
+<li><a id="sec-2-3-2" name="sec-2-3-2"></a><b>Hybrid Merkle</b><br  /><div class="outline-text-4" id="text-2-3-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">SEAL-PARALLELISM</td>
+<td class="right">WALL-CLOCK-SEAL-TIME</td>
+<td class="right">GIB-SEAL-COST</td>
+<td class="right">SEAL-TIME</td>
+<td class="right">GIB-HOUR-SEAL-INVESTMENT</td>
+<td class="right">GIB-SEAL-TIME</td>
+<td class="right">WALL-CLOCK-SEAL-TIME-PER-GIB</td>
+</tr>
+
+<tr>
+<td class="right">14</td>
+<td class="right">22164.979</td>
+<td class="right">0.062314685</td>
+<td class="right">314424.9</td>
+<td class="right">136.46916</td>
+<td class="right">9825.778</td>
+<td class="right">692.6556</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+
+<li><a id="sec-2-3-3" name="sec-2-3-3"></a><b>Hybrid Savings</b><br  /><div class="outline-text-4" id="text-2-3-3">
+<pre class="example">
+Hybrid SEAL-TIME (CPU) is 89.08% of non-hybrid SEAL-TIME.
+This is a savings of 10.92%.
+
+Hybrid WALL-CLOCK-SEAL-TIME (CPU) is 79.18% of non-hybrid WALL-CLOCK-SEAL-TIME.
+This is a savings of 20.82%.
+</pre>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> FGR</h3>
+<div class="outline-text-3" id="text-2-4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">ONE-YEAR-FGR</td>
+<td class="right">TWO-YEAR-FGR</td>
+<td class="right">THREE-YEAR-FGR</td>
+</tr>
+
+<tr>
+<td class="right">3.5845745</td>
+<td class="right">8.824088</td>
+<td class="right">14.063601</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> Hybrid Merkle Trees</h3>
+<div class="outline-text-3" id="text-2-5">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">CIRCUIT-TIME</td>
+<td class="right">HASHING-TIME</td>
+<td class="right">LAYER-INDEX</td>
+<td class="right">CONSTRAINTS</td>
+<td class="right">LOWEST-TIME</td>
+<td class="right">OPTIMAL-BETA-MERKLE-HEIGHT</td>
+</tr>
+
+<tr>
+<td class="right">0.0</td>
+<td class="right">58.78898</td>
+<td class="right">0</td>
+<td class="right">0</td>
+<td class="right">58.78898</td>
+<td class="right">30</td>
+</tr>
+
+<tr>
+<td class="right">7866.365</td>
+<td class="right">1087.6437</td>
+<td class="right">1</td>
+<td class="right">193290880</td>
+<td class="right">8954.009</td>
+<td class="right">4</td>
+</tr>
+
+<tr>
+<td class="right">7866.365</td>
+<td class="right">1087.6437</td>
+<td class="right">2</td>
+<td class="right">193290880</td>
+<td class="right">8954.009</td>
+<td class="right">4</td>
+</tr>
+
+<tr>
+<td class="right">7866.365</td>
+<td class="right">1087.6437</td>
+<td class="right">3</td>
+<td class="right">193290880</td>
+<td class="right">8954.009</td>
+<td class="right">4</td>
+</tr>
+
+<tr>
+<td class="right">10418.262</td>
+<td class="right">2116.4985</td>
+<td class="right">4</td>
+<td class="right">257536320</td>
+<td class="right">12534.76</td>
+<td class="right">3</td>
+</tr>
+
+<tr>
+<td class="right">15280.117</td>
+<td class="right">2116.4985</td>
+<td class="right">5</td>
+<td class="right">377719936</td>
+<td class="right">17396.615</td>
+<td class="right">3</td>
+</tr>
+
+<tr>
+<td class="right">19881.344</td>
+<td class="right">4174.208</td>
+<td class="right">6</td>
+<td class="right">495299904</td>
+<td class="right">24055.55</td>
+<td class="right">2</td>
+</tr>
+
+<tr>
+<td class="right">25263.771</td>
+<td class="right">8289.627</td>
+<td class="right">7</td>
+<td class="right">636029856</td>
+<td class="right">33553.4</td>
+<td class="right">1</td>
+</tr>
+
+<tr>
+<td class="right">38023.25</td>
+<td class="right">8289.627</td>
+<td class="right">8</td>
+<td class="right">957257056</td>
+<td class="right">46312.875</td>
+<td class="right">1</td>
+</tr>
+
+<tr>
+<td class="right">46639.72</td>
+<td class="right">16520.465</td>
+<td class="right">9</td>
+<td class="right">1191833312</td>
+<td class="right">63160.184</td>
+<td class="right">0</td>
+</tr>
+
+<tr>
+<td class="right">69855.0</td>
+<td class="right">16520.465</td>
+<td class="right">10</td>
+<td class="right">1785077696</td>
+<td class="right">86375.47</td>
+<td class="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Schema</h2>
+<div class="outline-text-2" id="text-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">node-bytes</td>
+<td class="left">The number of bytes in a node &#x2013; must also be the hash digest size.</td>
+</tr>
+
+<tr>
+<td class="left">sector-gib</td>
+<td class="left">Size of one sector. Unit: GiB</td>
+</tr>
+
+<tr>
+<td class="left">sector-size</td>
+<td class="left">Size of one sector. Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">comm-d-size</td>
+<td class="left">Size of the data commitment (CommD). Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">comm-r-size</td>
+<td class="left">Size of the replica commitment (CommR). Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">comm-r-star-size</td>
+<td class="left">Size of the aggregated commitment to each layer's replica (CommR*). Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">comm-rs-size</td>
+<td class="left">Size of all replica commitments. Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">commitments-size</td>
+<td class="left">Size of all commitments returned by Seal. Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">on-chain-porep-size</td>
+<td class="left">On-chain size of one Seal proof plus commitments. Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">degree</td>
+<td class="left">Total in-degree of the ZigZag graph.</td>
+</tr>
+
+<tr>
+<td class="left">base-degree</td>
+<td class="left">In-degree of the base depth-robust graph (DRG).</td>
+</tr>
+
+<tr>
+<td class="left">expansion-degree</td>
+<td class="left">Maximum in-degree of the bipartite expander graph component of a ZigZag graph.</td>
+</tr>
+
+<tr>
+<td class="left">sloth-iter</td>
+<td class="left">Number of iterations of sloth verifiable delay encoding (VDE) to perform.</td>
+</tr>
+
+<tr>
+<td class="left">partitions</td>
+<td class="left">Number of circuit partitions into which a proof is divided.</td>
+</tr>
+
+<tr>
+<td class="left">replication-time</td>
+<td class="left">Time to replicate one sector. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">replication-time-per-byte</td>
+<td class="left">Time to replicate one byte. Unit: seconds / byte</td>
+</tr>
+
+<tr>
+<td class="left">replication-time-per-gib</td>
+<td class="left">Time to replicate one GiB. Unit: seconds / GiB</td>
+</tr>
+
+<tr>
+<td class="left">sealing-time</td>
+<td class="left">Total CPU time to seal (replicate + generate proof of replication) one sector. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">non-circuit-proving-time</td>
+<td class="left">Time (including replication) to generate a non-circuit proof of replication. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">vector-commitment-time</td>
+<td class="left">Time to generate the vector commitments used in a non-circuit proof of replication. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">circuit-proving-time-per-constraint</td>
+<td class="left">Groth16 circuit proving time (from benchmarks) per constraint. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-total-proving-time</td>
+<td class="left">Total time to generate a proof of replication (circuit and non-circuit). Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">seal-time</td>
+<td class="left">Total time to seal (replication + proving) one sector. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">wall-clock-seal-time</td>
+<td class="left">Wall clock time sealing time using SEAL-PARALLELISM cores. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">seal-parallelism</td>
+<td class="left">Number of cores utilized when computing wall-clock-seal-time.</td>
+</tr>
+
+<tr>
+<td class="left">sector-gib</td>
+<td class="left">Number of GiB in one sector. Unit: GiB</td>
+</tr>
+
+<tr>
+<td class="left">gib-seal-time</td>
+<td class="left">Total time to seal (replication + proving) one GiB. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">total-parents</td>
+<td class="left">Number of parents (or padding) each node uses when performing key derivation.</td>
+</tr>
+
+<tr>
+<td class="left">hash-functions</td>
+<td class="left">Alternate hash functions for use in merkle-tree generation, KDF, or other commitments. All values here assume 64 bytes of raw input, but benchmarks include any extra, 'personalization', bits/bytes included as input during merkle-tree construction.</td>
+</tr>
+
+<tr>
+<td class="left">single-kdf-hashes</td>
+<td class="left">Number of hashes performed as part of a single application of the key-derivation function (KDF). This is equal to the number of parents and includes the replica ID. Since we use Merkle-Damgard construction, the number of compression hashes is the number of elements - 1.</td>
+</tr>
+
+<tr>
+<td class="left">kdf-hashes</td>
+<td class="left">Number of hashes performed as part of the key-derivation function (KDF).</td>
+</tr>
+
+<tr>
+<td class="left">single-kdf-time</td>
+<td class="left">Hashing time to perform a single KDF. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">single-layer-merkle-hashing-time</td>
+<td class="left">Merkle hashing time for a single layer. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">total-merkle-trees</td>
+<td class="left">Total merkle trees which must be generated.</td>
+</tr>
+
+<tr>
+<td class="left">total-merkle-hashing-time</td>
+<td class="left">Total time to generate all merkle trees. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">total-nodes-to-encode</td>
+<td class="left">Total nodes to encode across all layers.</td>
+</tr>
+
+<tr>
+<td class="left">single-node-sloth-time</td>
+<td class="left">Time to perform sloth (VDE) for a single node. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">single-node-encoding-time</td>
+<td class="left">Time to encode a single node. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">single-challenge-inclusion-proofs</td>
+<td class="left">Number of inclusion proofs which must be verified for a single challenge.</td>
+</tr>
+
+<tr>
+<td class="left">single-challenge-merkle-hases</td>
+<td class="left">Number of merkle hashes which must be verified for a single challenge.</td>
+</tr>
+
+<tr>
+<td class="left">single-challenge-kdf-hashes</td>
+<td class="left">Number of KDF hashes which must be verified for a single challenge.</td>
+</tr>
+
+<tr>
+<td class="left">single-challenge-sloth-verifications</td>
+<td class="left">Number of sloth iterations which must be verified for a single challenge.</td>
+</tr>
+
+<tr>
+<td class="left">total-kdf-hashes</td>
+<td class="left">Total number of KDF (key-derivation function) required during replication.</td>
+</tr>
+
+<tr>
+<td class="left">total-zigzag-kdf-hashing-constraints</td>
+<td class="left">Total number of kdf hashing constraints in a ZigZag circuit.</td>
+</tr>
+
+<tr>
+<td class="left">total-zigzag-non-hashing-constraints</td>
+<td class="left">Total number of hashes which must be verified in a ZigZag circuit.</td>
+</tr>
+
+<tr>
+<td class="left">total-zigzag-circuit-kdf-hashes</td>
+<td class="left">Total number of KDF hashes which must be verified in a ZigZag circuit.</td>
+</tr>
+
+<tr>
+<td class="left">total-zigzag-sloth-constraints</td>
+<td class="left">Total number of constraints due to sloth verification.</td>
+</tr>
+
+<tr>
+<td class="left">total-zigzag-constraints</td>
+<td class="left">Total number of constraints which must be verified in a ZigZag circuit.</td>
+</tr>
+
+<tr>
+<td class="left">layer-index</td>
+<td class="left">Index of layer. Unit: integer</td>
+</tr>
+
+<tr>
+<td class="left">layer-replication-time</td>
+<td class="left">Time to replicate one layer. Unit: seconds</td>
+</tr>
+
+<tr>
+<td class="left">storage-to-proof-size-ratio</td>
+<td class="left">Ratio of sealed sector size to on-chain PoRep size.</td>
+</tr>
+
+<tr>
+<td class="left">storage-to-proof-size-float</td>
+<td class="left">Ratio of sealed sector size to on-chain PoRep size &#x2013; expressed as a float.</td>
+</tr>
+
+<tr>
+<td class="left">single-circuit-proof-size</td>
+<td class="left">Size of a single Groth16 Proof. Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">total-circuit-proof-size</td>
+<td class="left">Total size of a single circuit proof. Unit: bytes</td>
+</tr>
+
+<tr>
+<td class="left">total-challenges</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">partition-challenges</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">kdf-hash-function.size</td>
+<td class="left">Size of digest (output) generated by *.HASH-FUNCTION.</td>
+</tr>
+
+<tr>
+<td class="left">kdf-hash-function.circuit-time</td>
+<td class="left">Time for one *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">kdf-hash-function.constraints</td>
+<td class="left">Number of constraints required to prove *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">kdf-hash-function.hash-function%</td>
+<td class="left">Tuple containing the selected hash function's characteristics.</td>
+</tr>
+
+<tr>
+<td class="left">merkle-hash-function.size</td>
+<td class="left">Size of digest (output) generated by *.HASH-FUNCTION.</td>
+</tr>
+
+<tr>
+<td class="left">merkle-hash-function.circuit-time</td>
+<td class="left">Time for one *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">merkle-hash-function.constraints</td>
+<td class="left">Number of constraints required to prove *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">merkle-hash-function.hash-function%</td>
+<td class="left">Tuple containing the selected hash function's characteristics.</td>
+</tr>
+
+<tr>
+<td class="left">alpha-hash-function.size</td>
+<td class="left">Size of digest (output) generated by *.HASH-FUNCTION.</td>
+</tr>
+
+<tr>
+<td class="left">alpha-hash-function.circuit-time</td>
+<td class="left">Time for one *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">alpha-hash-function.constraints</td>
+<td class="left">Number of constraints required to prove *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">alpha-hash-function.hash-function%</td>
+<td class="left">Tuple containing the selected hash function's characteristics.</td>
+</tr>
+
+<tr>
+<td class="left">beta-hash-function.size</td>
+<td class="left">Size of digest (output) generated by *.HASH-FUNCTION.</td>
+</tr>
+
+<tr>
+<td class="left">beta-hash-function.circuit-time</td>
+<td class="left">Time for one *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">beta-hash-function.constraints</td>
+<td class="left">Number of constraints required to prove *.HASH-FUNCTION in circuit.</td>
+</tr>
+
+<tr>
+<td class="left">beta-hash-function.hash-function%</td>
+<td class="left">Tuple containing the selected hash function's characteristics.</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-soundness</td>
+<td class="left">ZigZag soundness: Unit fraction</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-lambda</td>
+<td class="left">ZigZag soundness: Unit bits</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-epsilon</td>
+<td class="left">Maximum allowable deletion (space tightness): Unit: fraction</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-delta</td>
+<td class="left">Maximum allowable cheating on labels (block corruption)</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-basic-layer-challenges</td>
+<td class="left">Multiple of lambda challenges per layer, without tapering optimization.</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-basic-layer-challenge-factor</td>
+<td class="left">Number of challenges which, when multiplied by lambda, yields the number of challenges per layer without tapering optimization.</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-space-gap</td>
+<td class="left">Maximum allowable gap between actual and claimed storage. Unit: fraction</td>
+</tr>
+
+<tr>
+<td class="left">zigzag-layer-challenges</td>
+<td class="left">Number of challenges in this (indexed) layer of ZigZag PoRep. Unit: integer</td>
+</tr>
+
+<tr>
+<td class="left">layers</td>
+<td class="left">Number of layers specified for this construction (not necessarily same as calculated from security parameters).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> JSON</h2>
+<div class="outline-text-2" id="text-4">
+<div class="org-src-container">
+
+<pre class="src src-sh">cd $dir; make ubercalc 2&gt;&amp;1 | /dev/null
+
+./bin/ucalc solve --calc=filecoin | jq
+</pre>
+</div>
+
+<pre class="example">
+[
+  {
+    "optimal-heights": {
+      "tuples": [
+        {
+          "constraints": 0,
+          "layer-index": 0,
+          "lowest-time": 97.94244,
+          "circuit-time": 0,
+          "hashing-time": 97.94244,
+          "optimal-beta-merkle-height": 30
+        },
+        {
+          "constraints": 171690880,
+          "layer-index": 1,
+          "lowest-time": 24432.822,
+          "circuit-time": 20836.523,
+          "hashing-time": 3596.2986,
+          "optimal-beta-merkle-height": 3
+        },
+        {
+          "constraints": 171690880,
+          "layer-index": 2,
+          "lowest-time": 24432.822,
+          "circuit-time": 20836.523,
+          "hashing-time": 3596.2986,
+          "optimal-beta-merkle-height": 3
+        },
+        {
+          "constraints": 171690880,
+          "layer-index": 3,
+          "lowest-time": 24432.822,
+          "circuit-time": 20836.523,
+          "hashing-time": 3596.2986,
+          "optimal-beta-merkle-height": 3
+        },
+        {
+          "constraints": 225136320,
+          "layer-index": 4,
+          "lowest-time": 34205.582,
+          "circuit-time": 27110.928,
+          "hashing-time": 7094.655,
+          "optimal-beta-merkle-height": 2
+        },
+        {
+          "constraints": 330199936,
+          "layer-index": 5,
+          "lowest-time": 46857.348,
+          "circuit-time": 39762.69,
+          "hashing-time": 7094.655,
+          "optimal-beta-merkle-height": 2
+        },
+        {
+          "constraints": 424019904,
+          "layer-index": 6,
+          "lowest-time": 64618.906,
+          "circuit-time": 50527.54,
+          "hashing-time": 14091.367,
+          "optimal-beta-merkle-height": 1
+        },
+        {
+          "constraints": 636029856,
+          "layer-index": 7,
+          "lowest-time": 89882.68,
+          "circuit-time": 75791.31,
+          "hashing-time": 14091.367,
+          "optimal-beta-merkle-height": 1
+        },
+        {
+          "constraints": 796337056,
+          "layer-index": 8,
+          "lowest-time": 121573.375,
+          "circuit-time": 93488.586,
+          "hashing-time": 28084.791,
+          "optimal-beta-merkle-height": 0
+        },
+        {
+          "constraints": 1191833312,
+          "layer-index": 9,
+          "lowest-time": 168003.95,
+          "circuit-time": 139919.16,
+          "hashing-time": 28084.791,
+          "optimal-beta-merkle-height": 0
+        },
+        {
+          "constraints": 1785077696,
+          "layer-index": 10,
+          "lowest-time": 237649.81,
+          "circuit-time": 209565.02,
+          "hashing-time": 28084.791,
+          "optimal-beta-merkle-height": 0
+        }
+      ]
+    },
+    "nodes": 1073741824,
+    "degree": 13,
+    "layers": 10,
+    "profit": true,
+    "seal-hz": 5000000000,
+    "seal-ghz": 5,
+    "daily-tib": 1.1147972,
+    "seal-time": 843044.06,
+    "fgr-months": 6.409414,
+    "hourly-gib": 47.564682,
+    "hourly-tib": 0.046449885,
+    "needed-ghz": 1740.4132,
+    "node-bytes": 32,
+    "partitions": 1,
+    "sector-gib": 32,
+    "sloth-iter": 0,
+    "base-degree": 5,
+    "comm-d-size": 32,
+    "comm-r-size": 32,
+    "monthly-tib": 33.908417,
+    "sector-size": 34359738368,
+    "comm-rs-size": 64,
+    "cpu-ghz-cost": 10,
+    "gib-capacity": 104166.66,
+    "one-year-fgr": 1.1387482,
+    "tib-capacity": 101.72525,
+    "two-year-fgr": 3.5830317,
+    "zigzag-delta": 0.003,
+    "zigzag-taper": 0.33333334,
+    "annual-income": 50000,
+    "gib-seal-cost": 0.16707969,
+    "gib-seal-time": 26345.127,
+    "total-parents": 13,
+    "zigzag-lambda": 8,
+    "zigzag-layers": 12,
+    "hash-functions": {
+      "tuples": [
+        {
+          "circuit-time": 0.153988,
+          "hash-function-name": "pedersen",
+          "hash-function-size": 32,
+          "hash-function-time": 2.6156e-05,
+          "hash-function-constraints": 1324
+        },
+        {
+          "circuit-time": 0.65253,
+          "hash-function-name": "blake2s-kdf",
+          "hash-function-size": 32,
+          "hash-function-time": 4.5608e-08,
+          "hash-function-constraints": 5162
+        },
+        {
+          "circuit-time": 1.30506,
+          "hash-function-name": "blake2s",
+          "hash-function-size": 32,
+          "hash-function-time": 9.1216e-08,
+          "hash-function-constraints": 10324
+        }
+      ]
+    },
+    "monthly-income": 4166.6665,
+    "three-year-fgr": 6.027315,
+    "tib-drive-cost": 30,
+    "zigzag-epsilon": 0.007,
+    "gib-seal-cycles": 131725630000000,
+    "one-year-profit": 23294.107,
+    "single-kdf-time": 6.38512e-07,
+    "two-year-profit": 73294.1,
+    "alternate-layers": {
+      "tuples": [
+        {
+          "proving-time": 237649.81,
+          "beta-merkle-height": 0
+        },
+        {
+          "proving-time": 269791.34,
+          "beta-merkle-height": 1
+        },
+        {
+          "proving-time": 308929.63,
+          "beta-merkle-height": 2
+        },
+        {
+          "proving-time": 351566.25,
+          "beta-merkle-height": 3
+        },
+        {
+          "proving-time": 395952.03,
+          "beta-merkle-height": 4
+        },
+        {
+          "proving-time": 441212.38,
+          "beta-merkle-height": 5
+        },
+        {
+          "proving-time": 486910.06,
+          "beta-merkle-height": 6
+        },
+        {
+          "proving-time": 532826.4,
+          "beta-merkle-height": 7
+        },
+        {
+          "proving-time": 578852,
+          "beta-merkle-height": 8
+        },
+        {
+          "proving-time": 624932.3,
+          "beta-merkle-height": 9
+        },
+        {
+          "proving-time": 671039.94,
+          "beta-merkle-height": 10
+        },
+        {
+          "proving-time": 717161.25,
+          "beta-merkle-height": 11
+        },
+        {
+          "proving-time": 763289.4,
+          "beta-merkle-height": 12
+        },
+        {
+          "proving-time": 809420.9,
+          "beta-merkle-height": 13
+        },
+        {
+          "proving-time": 855554.1,
+          "beta-merkle-height": 14
+        },
+        {
+          "proving-time": 901688.4,
+          "beta-merkle-height": 15
+        },
+        {
+          "proving-time": 947822.8,
+          "beta-merkle-height": 16
+        },
+        {
+          "proving-time": 993957.5,
+          "beta-merkle-height": 17
+        },
+        {
+          "proving-time": 1040092.5,
+          "beta-merkle-height": 18
+        },
+        {
+          "proving-time": 1086227.4,
+          "beta-merkle-height": 19
+        },
+        {
+          "proving-time": 1132362.4,
+          "beta-merkle-height": 20
+        },
+        {
+          "proving-time": 1178497.4,
+          "beta-merkle-height": 21
+        },
+        {
+          "proving-time": 1224632.3,
+          "beta-merkle-height": 22
+        },
+        {
+          "proving-time": 1270767.1,
+          "beta-merkle-height": 23
+        },
+        {
+          "proving-time": 1316902.3,
+          "beta-merkle-height": 24
+        },
+        {
+          "proving-time": 1363037.1,
+          "beta-merkle-height": 25
+        },
+        {
+          "proving-time": 1409172.3,
+          "beta-merkle-height": 26
+        },
+        {
+          "proving-time": 1455307.1,
+          "beta-merkle-height": 27
+        },
+        {
+          "proving-time": 1501442,
+          "beta-merkle-height": 28
+        },
+        {
+          "proving-time": 1547577.1,
+          "beta-merkle-height": 29
+        },
+        {
+          "proving-time": 1593712.1,
+          "beta-merkle-height": 30
+        }
+      ]
+    },
+    "comm-r-star-size": 32,
+    "commitments-size": 96,
+    "expansion-degree": 8,
+    "replication-time": 6855.9707,
+    "seal-parallelism": 14,
+    "total-challenges": 2672,
+    "zigzag-soundness": 0.00390625,
+    "zigzag-space-gap": 0.01,
+    "aws-glacier-price": 0.004,
+    "single-kdf-hashes": 14,
+    "three-year-profit": 123294.1,
+    "must-have-filecoin": true,
+    "total-circuit-time": 698674.8,
+    "total-hashing-time": 137513.25,
+    "total-proving-time": 836188.06,
+    "on-chain-porep-size": 288,
+    "space-gap-satisfied": true,
+    "total-up-front-cost": 20455.89,
+    "up-front-drive-cost": 3051.7576,
+    "minimum-one-year-fgr": -2,
+    "minimum-two-year-fgr": 0.25,
+    "partition-challenges": 2672,
+    "seal-cycles-per-hour": 6265487600000000,
+    "up-front-memory-cost": 0,
+    "wall-clock-seal-time": 59727.72,
+    "income-during-ramp-up": 6250,
+    "total-nodes-to-encode": 10737418240,
+    "up-front-compute-cost": 17404.133,
+    "up-front-sealing-cost": 17404.133,
+    "fgr-months-at-capacity": 3.4094138,
+    "kdf-hash-function-name": "blake2s-kdf",
+    "kdf-hash-function.size": 32,
+    "kdf-hash-function.time": 4.5608e-08,
+    "layer-replication-time": 685.59705,
+    "max-beta-merkle-height": 30,
+    "minimum-three-year-fgr": 1,
+    "one-year-fgr-satisfied": true,
+    "one-year-profit-months": 5.590586,
+    "seal-cycles-per-minute": 104424790000000,
+    "seal-cycles-per-second": 1740413200000,
+    "single-node-sloth-time": 0,
+    "two-year-fgr-satisfied": true,
+    "two-year-profit-months": 17.590586,
+    "beta-hash-function-name": "blake2s",
+    "beta-hash-function.size": 32,
+    "beta-hash-function.time": 9.1216e-08,
+    "comparable-monthly-cost": 416.66666,
+    "kdf-hash-function.name%": "blake2s-kdf",
+    "total-zigzag-challenges": 2672,
+    "alpha-hash-function-name": "pedersen",
+    "alpha-hash-function.size": 32,
+    "alpha-hash-function.time": 2.6156e-05,
+    "beta-hash-function.name%": "blake2s",
+    "filecoin-fgr-requirement": true,
+    "gib-hour-seal-investment": 365.90454,
+    "layer-performance.layers": 10,
+    "miner-months-to-capacity": 3,
+    "replication-time-per-gib": 214.24908,
+    "three-year-fgr-satisfied": true,
+    "three-year-profit-months": 29.590586,
+    "total-circuit-proof-size": 192,
+    "total-zigzag-constraints": 5903706720,
+    "alpha-hash-function.name%": "pedersen",
+    "bench-circuit-constraints": 10324,
+    "income-to-fgr-at-capacity": 14205.891,
+    "merkle-hash-function-name": "pedersen",
+    "merkle-hash-function.size": 32,
+    "merkle-hash-function.time": 2.6156e-05,
+    "replication-time-per-byte": 1.9953501e-07,
+    "single-circuit-proof-size": 192,
+    "single-node-encoding-time": 6.38512e-07,
+    "bench-circuit-proving-time": 0.14464,
+    "commodity-storage-discount": 10,
+    "filecoin-fgr-requirement-1": true,
+    "merkle-hash-function.name%": "pedersen",
+    "total-untapered-challenges": 32000,
+    "maximum-allowable-space-gap": 0.02,
+    "single-challenge-kdf-hashes": 14,
+    "single-sloth-iteration-time": 123,
+    "storage-to-proof-size-float": 119304650,
+    "storage-to-proof-size-ratio": 119304650,
+    "layer-performance.node-bytes": 32,
+    "wall-clock-seal-time-per-gib": 1866.4912,
+    "kdf-hash-function.constraints": 5162,
+    "layer-performance.layer-index": 10,
+    "layer-performance.sector-size": 34359738368,
+    "wall-clock-seal-time-per-byte": 1.7383054e-06,
+    "zigzag-basic-layer-challenges": 2666.6667,
+    "beta-hash-function.constraints": 10324,
+    "kdf-hash-function.circuit-time": 0.65253,
+    "layer-performance.circuit-time": 1593614.1,
+    "total-zigzag-other-constraints": 0,
+    "total-zigzag-sloth-constraints": 857712,
+    "alpha-hash-function.constraints": 1324,
+    "alpha-merkle-hash-function-name": "pedersen",
+    "beta-hash-function.circuit-time": 1.30506,
+    "filecoin-requirements-satisfied": true,
+    "total-zigzag-circuit-kdf-hashes": 37408,
+    "alpha-hash-function.circuit-time": 0.153988,
+    "filecoin-storage-ratio-satisfied": true,
+    "kdf-hash-function.hash-function%": {
+      "circuit-time": 0.65253,
+      "hash-function-name": "blake2s-kdf",
+      "hash-function-size": 32,
+      "hash-function-time": 4.5608e-08,
+      "hash-function-constraints": 5162
+    },
+    "merkle-hash-function.constraints": 1324,
+    "beta-hash-function.hash-function%": {
+      "circuit-time": 1.30506,
+      "hash-function-name": "blake2s",
+      "hash-function-size": 32,
+      "hash-function-time": 9.1216e-08,
+      "hash-function-constraints": 10324
+    },
+    "kdf-hash-function.hash-functions%": {
+      "tuples": [
+        {
+          "circuit-time": 0.153988,
+          "hash-function-name": "pedersen",
+          "hash-function-size": 32,
+          "hash-function-time": 2.6156e-05,
+          "hash-function-constraints": 1324
+        },
+        {
+          "circuit-time": 0.65253,
+          "hash-function-name": "blake2s-kdf",
+          "hash-function-size": 32,
+          "hash-function-time": 4.5608e-08,
+          "hash-function-constraints": 5162
+        },
+        {
+          "circuit-time": 1.30506,
+          "hash-function-name": "blake2s",
+          "hash-function-size": 32,
+          "hash-function-time": 9.1216e-08,
+          "hash-function-constraints": 10324
+        }
+      ]
+    },
+    "merkle-hash-function.circuit-time": 0.153988,
+    "single-challenge-inclusion-proofs": 15,
+    "alpha-hash-function.hash-function%": {
+      "circuit-time": 0.153988,
+      "hash-function-name": "pedersen",
+      "hash-function-size": 32,
+      "hash-function-time": 2.6156e-05,
+      "hash-function-constraints": 1324
+    },
+    "beta-hash-function.hash-functions%": {
+      "tuples": [
+        {
+          "circuit-time": 0.153988,
+          "hash-function-name": "pedersen",
+          "hash-function-size": 32,
+          "hash-function-time": 2.6156e-05,
+          "hash-function-constraints": 1324
+        },
+        {
+          "circuit-time": 0.65253,
+          "hash-function-name": "blake2s-kdf",
+          "hash-function-size": 32,
+          "hash-function-time": 4.5608e-08,
+          "hash-function-constraints": 5162
+        },
+        {
+          "circuit-time": 1.30506,
+          "hash-function-name": "blake2s",
+          "hash-function-size": 32,
+          "hash-function-time": 9.1216e-08,
+          "hash-function-constraints": 10324
+        }
+      ]
+    },
+    "layer-performance.layer-challenges": 2672,
+    "single-sloth-iteration-constraints": 321,
+    "alpha-hash-function.hash-functions%": {
+      "tuples": [
+        {
+          "circuit-time": 0.153988,
+          "hash-function-name": "pedersen",
+          "hash-function-size": 32,
+          "hash-function-time": 2.6156e-05,
+          "hash-function-constraints": 1324
+        },
+        {
+          "circuit-time": 0.65253,
+          "hash-function-name": "blake2s-kdf",
+          "hash-function-size": 32,
+          "hash-function-time": 4.5608e-08,
+          "hash-function-constraints": 5162
+        },
+        {
+          "circuit-time": 1.30506,
+          "hash-function-name": "blake2s",
+          "hash-function-size": 32,
+          "hash-function-time": 9.1216e-08,
+          "hash-function-constraints": 10324
+        }
+      ]
+    },
+    "circuit-proving-time-per-constraint": 1.4010074e-05,
+    "layer-performance.beta-hashing-time": 97.94244,
+    "merkle-hash-function.hash-function%": {
+      "circuit-time": 0.153988,
+      "hash-function-name": "pedersen",
+      "hash-function-size": 32,
+      "hash-function-time": 2.6156e-05,
+      "hash-function-constraints": 1324
+    },
+    "minimum-storage-to-proof-size-ratio": 42949670,
+    "zigzag-basic-layer-challenge-factor": 333.33334,
+    "layer-performance.alpha-hashing-time": 0,
+    "layer-performance.merkle-tree.height": 30,
+    "layer-performance.merkle-tree.leaves": 1073741824,
+    "merkle-hash-function.hash-functions%": {
+      "tuples": [
+        {
+          "circuit-time": 0.153988,
+          "hash-function-name": "pedersen",
+          "hash-function-size": 32,
+          "hash-function-time": 2.6156e-05,
+          "hash-function-constraints": 1324
+        },
+        {
+          "circuit-time": 0.65253,
+          "hash-function-name": "blake2s-kdf",
+          "hash-function-size": 32,
+          "hash-function-time": 4.5608e-08,
+          "hash-function-constraints": 5162
+        },
+        {
+          "circuit-time": 1.30506,
+          "hash-function-name": "blake2s",
+          "hash-function-size": 32,
+          "hash-function-time": 9.1216e-08,
+          "hash-function-constraints": 10324
+        }
+      ]
+    },
+    "single-challenge-sloth-verifications": 0,
+    "total-zigzag-kdf-hashing-constraints": 193100096,
+    "total-zigzag-non-hashing-constraints": 857712,
+    "average-monthly-income-during-ramp-up": 2083.3333,
+    "filecoin-porep-requirements-satisfied": true,
+    "layer-performance.challenge-constraints": 4718068,
+    "layer-performance.challenge-circuit-time": 596.4125,
+    "layer-performance.layer-challenge-proofs": 15,
+    "layer-performance.max-beta-merkle-height": 30,
+    "layer-performance.merkle-tree.height-raw": 30,
+    "layer-performance.merkle-tree.node-bytes": 32,
+    "layer-performance.beta-hash-function.time": 9.1216e-08,
+    "layer-performance.merkle-tree.beta-height": 30,
+    "layer-performance.merkle-tree.sector-size": 34359738368,
+    "layer-performance.alpha-hash-function.time": 2.6156e-05,
+    "layer-performance.merkle-tree.alpha-height": 0,
+    "layer-performance.merkle-tree.alpha-leaves": 1,
+    "layer-performance.challenge-kdf-constraints": 72268,
+    "layer-performance.challenge-kdf-circuit-time": 9.13542,
+    "layer-performance.inclusion-proof-constraints": 309720,
+    "layer-performance.merkle-tree.beta-hash-count": 1073741823,
+    "layer-performance.single-challenge-kdf-hashes": 14,
+    "filecoin-porep-security-requirements-satisfied": true,
+    "layer-performance.inclusion-proof-circuit-time": 39.151802,
+    "layer-performance.merkle-tree.alpha-hash-count": 0,
+    "layer-performance.merkle-tree.total-hash-count": 1073741823,
+    "layer-performance.kdf-hash-function.constraints": 5162,
+    "layer-performance.beta-hash-function.constraints": 10324,
+    "layer-performance.kdf-hash-function.circuit-time": 0.65253,
+    "layer-performance.alpha-hash-function.constraints": 1324,
+    "layer-performance.beta-hash-function.circuit-time": 1.30506,
+    "layer-performance.challenge-inclusion-constraints": 4645800,
+    "layer-performance.alpha-hash-function.circuit-time": 0.153988,
+    "layer-performance.beta-inclusion-proof-constraints": 309720,
+    "layer-performance.challenge-inclusion-circuit-time": 587.27704,
+    "layer-performance.alpha-inclusion-proof-constraints": 0,
+    "layer-performance.beta-inclusion-proof-circuit-time": 39.151802,
+    "layer-performance.single-challenge-inclusion-proofs": 15,
+    "layer-performance.alpha-inclusion-proof-circuit-time": 0,
+    "layer-performance.circuit-proving-time-per-constraint": 1.4010074e-05,
+    "layer-performance.merkle-tree.beta-inclusion-proof-hash-length": 30,
+    "layer-performance.merkle-tree.alpha-inclusion-proof-hash-length": 0,
+    "layer-performance.merkle-tree.total-inclusion-proof-hash-length": 30
+  }
+]
+</pre>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
