@@ -149,7 +149,7 @@ ZigZag Replication
 : This is a savings of 11.00%.
 : 
 
-** Filecoin Growth Rate (FGR) )
+** Filecoin Growth Rate (FGR)
 #+BEGIN_SRC lisp :package replication :exports results
 
 (org-present (project '(one-year-fgr two-year-fgr three-year-fgr) *zigzag-base*) nil)
@@ -159,7 +159,7 @@ ZigZag Replication
 #+RESULTS:
 | ONE-YEAR-FGR | TWO-YEAR-FGR | THREE-YEAR-FGR |
 |    1.1387482 |    3.5830317 |       6.027315 |
-)
+
 ** Hybrid Merkle Trees
 #+BEGIN_SRC lisp :package replication :exports results
 (org-present (tref 'optimal-heights (extract (project '(optimal-heights) *zigzag-base*))) nil)

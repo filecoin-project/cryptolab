@@ -4,3 +4,4 @@
 * Replication
 - [[file:replication.org][Replication Calculations]]
 - [[file:memory.org][Replication Memory]]
+- [[file:zigzag-commitments/zigzag-commitments.org][ZigZag Commitments]]
