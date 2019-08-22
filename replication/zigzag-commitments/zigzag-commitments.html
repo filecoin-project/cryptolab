@@ -142,15 +142,17 @@ for the JavaScript code in this tag.
 <ul>
 <li><a href="#sec-1">1. Graph</a>
 <ul>
-<li><a href="#sec-1-1">1.1. Replica Column Layers, Comm' Tree</a></li>
-<li><a href="#sec-1-2">1.2. Final Layer, CommR Tree</a></li>
-<li><a href="#sec-1-3">1.3. Legend</a></li>
+<li><a href="#sec-1-1">1.1. Legend</a></li>
+<li><a href="#sec-1-2">1.2. Data Layer: CommD Tree</a></li>
+<li><a href="#sec-1-3">1.3. Replica Column Layers: Comm' Tree</a></li>
+<li><a href="#sec-1-4">1.4. Final Layer: CommR Tree</a></li>
 </ul>
 </li>
 <li><a href="#sec-2">2. Details</a>
 <ul>
-<li><a href="#sec-2-1">2.1. Columns</a></li>
-<li><a href="#sec-2-2">2.2. Final Layer</a></li>
+<li><a href="#sec-2-1">2.1. Initial Data Layer</a></li>
+<li><a href="#sec-2-2">2.2. Columns</a></li>
+<li><a href="#sec-2-3">2.3. Final Replica Layer</a></li>
 </ul>
 </li>
 </ul>
@@ -168,8 +170,35 @@ and are accurate for expander parents. However, this is not representative of th
 </div>
 
 <div id="outline-container-sec-1-1" class="outline-3">
-<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Replica Column Layers, Comm' Tree</h3>
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Legend</h3>
 <div class="outline-text-3" id="text-1-1">
+
+<div class="figure">
+<p><img src="legend-odd.png" alt="legend-odd.png" />
+</p>
+</div>
+
+<div class="figure">
+<p><img src="legend-even.png" alt="legend-even.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Data Layer: CommD Tree</h3>
+<div class="outline-text-3" id="text-1-2">
+
+<div class="figure">
+<p><img src="data-layer.png" alt="data-layer.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Replica Column Layers: Comm' Tree</h3>
+<div class="outline-text-3" id="text-1-3">
 
 <div class="figure">
 <p><img src="layer-0.png" alt="layer-0.png" />
@@ -202,9 +231,9 @@ and are accurate for expander parents. However, this is not representative of th
 </div>
 </div>
 
-<div id="outline-container-sec-1-2" class="outline-3">
-<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Final Layer, CommR Tree</h3>
-<div class="outline-text-3" id="text-1-2">
+<div id="outline-container-sec-1-4" class="outline-3">
+<h3 id="sec-1-4"><span class="section-number-3">1.4</span> Final Layer: CommR Tree</h3>
+<div class="outline-text-3" id="text-1-4">
 
 <div class="figure">
 <p><img src="layer-5.png" alt="layer-5.png" />
@@ -212,27 +241,15 @@ and are accurate for expander parents. However, this is not representative of th
 </div>
 </div>
 </div>
-
-
-
-<div id="outline-container-sec-1-3" class="outline-3">
-<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Legend</h3>
-<div class="outline-text-3" id="text-1-3">
-
-<div class="figure">
-<p><img src="layer-legend.png" alt="layer-legend.png" />
-</p>
 </div>
-</div>
-</div>
-</div>
+
 
 
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2"><span class="section-number-2">2</span> Details</h2>
 <div class="outline-text-2" id="text-2">
 </div><div id="outline-container-sec-2-1" class="outline-3">
-<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Columns</h3>
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Initial Data Layer</h3>
 <div class="outline-text-3" id="text-2-1">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -257,11 +274,11 @@ and are accurate for expander parents. However, this is not representative of th
 <tbody>
 <tr>
 <td class="left">&#xa0;</td>
-<td class="left">DRG Parent</td>
-<td class="left">Expander Parent</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
 <td class="left">&#xa0;</td>
 <td class="left">Challenged Node</td>
-<td class="left">&#xa0;</td>
 <td class="left">&#xa0;</td>
 <td class="left">&#xa0;</td>
 </tr>
@@ -276,57 +293,13 @@ and are accurate for expander parents. However, this is not representative of th
 <td class="left">(0, 7)</td>
 <td class="left">(0, 8)</td>
 </tr>
-
-<tr>
-<td class="left">(1, 8)</td>
-<td class="left">(1, 7)</td>
-<td class="left">(1, 6)</td>
-<td class="left">(1, 5)</td>
-<td class="left">(1, 4)</td>
-<td class="left">(1, 3)</td>
-<td class="left">(1, 2)</td>
-<td class="left">(1, 1)</td>
-</tr>
-
-<tr>
-<td class="left">(2, 1)</td>
-<td class="left">(2, 2)</td>
-<td class="left">(2, 3)</td>
-<td class="left">(2, 4)</td>
-<td class="left">(2, 5)</td>
-<td class="left">(2, 6)</td>
-<td class="left">(2, 7)</td>
-<td class="left">(2, 8)</td>
-</tr>
-
-<tr>
-<td class="left">(3, 8)</td>
-<td class="left">(3, 7)</td>
-<td class="left">(3, 6)</td>
-<td class="left">(3, 5)</td>
-<td class="left">(3, 4)</td>
-<td class="left">(3, 3)</td>
-<td class="left">(3, 2)</td>
-<td class="left">(3, 1)</td>
-</tr>
-
-<tr>
-<td class="left">(4, 1)</td>
-<td class="left">(4, 2)</td>
-<td class="left">(4, 3)</td>
-<td class="left">(4, 4)</td>
-<td class="left">(4, 5)</td>
-<td class="left">(4, 6)</td>
-<td class="left">(4, 7)</td>
-<td class="left">(4, 8)</td>
-</tr>
 </tbody>
 </table>
 </div>
 </div>
 
 <div id="outline-container-sec-2-2" class="outline-3">
-<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Final Layer</h3>
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Columns</h3>
 <div class="outline-text-3" id="text-2-2">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -350,14 +323,120 @@ and are accurate for expander parents. However, this is not representative of th
 </colgroup>
 <tbody>
 <tr>
-<td class="left">(5, 8)</td>
-<td class="left">(5, 7)</td>
-<td class="left">(5, 6)</td>
-<td class="left">(5, 5)</td>
-<td class="left">(5, 4)</td>
-<td class="left">(5, 3)</td>
-<td class="left">(5, 2)</td>
+<td class="left">Odd Expander Parent</td>
+<td class="left">DRG Parent</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Expander Parent</td>
+<td class="left">Challenged Node</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">(1, 1)</td>
+<td class="left">(1, 2)</td>
+<td class="left">(1, 3)</td>
+<td class="left">(1, 4)</td>
+<td class="left">(1, 5)</td>
+<td class="left">(1, 6)</td>
+<td class="left">(1, 7)</td>
+<td class="left">(1, 8)</td>
+</tr>
+
+<tr>
+<td class="left">(2, 8)</td>
+<td class="left">(2, 7)</td>
+<td class="left">(2, 6)</td>
+<td class="left">(2, 5)</td>
+<td class="left">(2, 4)</td>
+<td class="left">(2, 3)</td>
+<td class="left">(2, 2)</td>
+<td class="left">(2, 1)</td>
+</tr>
+
+<tr>
+<td class="left">(3, 1)</td>
+<td class="left">(3, 2)</td>
+<td class="left">(3, 3)</td>
+<td class="left">(3, 4)</td>
+<td class="left">(3, 5)</td>
+<td class="left">(3, 6)</td>
+<td class="left">(3, 7)</td>
+<td class="left">(3, 8)</td>
+</tr>
+
+<tr>
+<td class="left">(4, 8)</td>
+<td class="left">(4, 7)</td>
+<td class="left">(4, 6)</td>
+<td class="left">(4, 5)</td>
+<td class="left">(4, 4)</td>
+<td class="left">(4, 3)</td>
+<td class="left">(4, 2)</td>
+<td class="left">(4, 1)</td>
+</tr>
+
+<tr>
 <td class="left">(5, 1)</td>
+<td class="left">(5, 2)</td>
+<td class="left">(5, 3)</td>
+<td class="left">(5, 4)</td>
+<td class="left">(5, 5)</td>
+<td class="left">(5, 6)</td>
+<td class="left">(5, 7)</td>
+<td class="left">(5, 8)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Final Replica Layer</h3>
+<div class="outline-text-3" id="text-2-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Challenged Node</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Expander Parent</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even DRG Parent</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">(6, 1)</td>
+<td class="left">(6, 2)</td>
+<td class="left">(6, 3)</td>
+<td class="left">(6, 4)</td>
+<td class="left">(6, 5)</td>
+<td class="left">(6, 6)</td>
+<td class="left">(6, 7)</td>
+<td class="left">(6, 8)</td>
 </tr>
 </tbody>
 </table>
