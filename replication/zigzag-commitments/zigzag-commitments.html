@@ -1,0 +1,952 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>ZigZag Commitments</title>
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js"></script>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">ZigZag Commitments</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Introduction</a></li>
+<li><a href="#sec-2">2. Graph</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Legend</a></li>
+<li><a href="#sec-2-2">2.2. Data Layer: \(Comm_D\) Tree</a></li>
+<li><a href="#sec-2-3">2.3. Replica Column Layers: \(Comm_C\) Tree</a></li>
+<li><a href="#sec-2-4">2.4. Final Layer: \(Comm_{R_{LAST}}\) Tree</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Commitment Algorithm</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Goal</a></li>
+<li><a href="#sec-3-2">3.2. Definitions and Notation</a></li>
+<li><a href="#sec-3-3">3.3. Initial Data Layer</a></li>
+<li><a href="#sec-3-4">3.4. ZigZag Replica Columns</a></li>
+<li><a href="#sec-3-5">3.5. Final Replica Layer</a></li>
+<li><a href="#sec-3-6">3.6. Replica Commitment</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4. Opening Commitments for Proof</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This document provides a simplified visual explanation of the ZigZag Commitment algorithm described in <a href="https://www.overleaf.com/read/kcdhnxwptxbc">Tight PoS - ZigZag</a>.
+</p>
+
+<p>
+It is intended to confer intuition about the algorithm, and to serve as a reference for implementors. The author of this
+document and those of the linked paper believe the two are consistent; and converging on this consistent design was a
+third design goal of this document's construction.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Graph</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Both renumbered (DRG) and reversed (expander) parents are generated by a pseudorandom permutation and are provided only
+to illustrate the nature of the zigzag commitment scheme. They accurately represent how parent-child relationships
+change between layers, and are accurate for expander parents. However, this is not representative of the DRG parent
+selection algorithm.
+</p>
+
+<p>
+The following graphs illustrate how the position of challenges, DRG parents, and expander parents change between
+layers. Only a single DRG parent and a single expander parent are shown. The immediate predecessor parent is shown for
+graph topology, but it is not tracked in the tables below.
+</p>
+
+<ul class="org-ul">
+<li>The challenged node alternates on even and odd layers.
+</li>
+<li>The DRG parents alternate in the same way.
+</li>
+<li>The expander parents do not alternate in this way. The edges between nodes and their expander parents are reversed between layers.
+</li>
+</ul>
+</div>
+
+<div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Legend</h3>
+<div class="outline-text-3" id="text-2-1">
+
+<div class="figure">
+<p><img src="legend-odd.png" alt="legend-odd.png" />
+</p>
+</div>
+
+<div class="figure">
+<p><img src="legend-even.png" alt="legend-even.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Data Layer: \(Comm_D\) Tree</h3>
+<div class="outline-text-3" id="text-2-2">
+
+<div class="figure">
+<p><img src="data-layer.png" alt="data-layer.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Replica Column Layers: \(Comm_C\) Tree</h3>
+<div class="outline-text-3" id="text-2-3">
+
+<div class="figure">
+<p><img src="layer-0.png" alt="layer-0.png" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="layer-1.png" alt="layer-1.png" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="layer=2.png" alt="layer=2.png" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="layer-3.png" alt="layer-3.png" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="layer-4.png" alt="layer-4.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Final Layer: \(Comm_{R_{LAST}}\) Tree</h3>
+<div class="outline-text-3" id="text-2-4">
+
+<div class="figure">
+<p><img src="layer-5.png" alt="layer-5.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Commitment Algorithm</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Goal</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+We will generate two commitments \(Comm_R, Comm_D\) to be placed on chain.
+</p>
+
+<p>
+\(Comm_D\) is the merkle root of the original data.
+</p>
+
+<p>
+\(Comm_R = H(Comm_C, Comm_{R_{LAST}})\).
+</p>
+
+<p>
+Their construction is described below.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Definitions and Notation</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+We will perform \(L\) layers of ZigZag replication over \(n\) labeled nodes.
+</p>
+
+<p>
+Merkle roots (commitments) are generated with the vector-commitment function \(VC(…)\).
+</p>
+
+<p>
+Hashes are produced with a hash function \(H(…)\), which is not necessarily that used by \(VC(…)\).
+</p>
+
+<p>
+\(Comm = VC(l_1,…l_n)\), where the \(l_i\) are the data (labels or hashes) to be committed.
+</p>
+
+<p>
+Generated trees are retained until the proving phase, when merkle proofs of a given label's inclusion in \(Comm\) will be
+created. We will designate such proofs \(l_i \rightarrow Comm\).
+</p>
+
+<p>
+We use the notation \(e{_i}^{(l)}\), correlated in the table below with the \((l, i)\) notation used in the
+graphs above, where \(l\) indexes layers, and \(i\) indexes labels.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">Graph</td>
+<td class="left">(1, 1)</td>
+<td class="left">(1, 2)</td>
+<td class="left">(1, 3)</td>
+<td class="left">(1, 4)</td>
+<td class="left">(1, 5)</td>
+<td class="left">(1, 6)</td>
+<td class="left">(1, 7)</td>
+<td class="left">(1, 8)</td>
+</tr>
+
+<tr>
+<td class="left">Notation</td>
+<td class="left">\(e_1^{(1)}\)</td>
+<td class="left">\(e_2^{(1)}\)</td>
+<td class="left">\(e_3^{(1)}\)</td>
+<td class="left">\(e_4^{(1)}\)</td>
+<td class="left">\(e_5^{(1)}\)</td>
+<td class="left">\(e_6^{(1)}\)</td>
+<td class="left">\(e_7^{(1)}\)</td>
+<td class="left">\(e_8^{(1)}\)</td>
+</tr>
+</tbody>
+</table>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">Graph</td>
+<td class="left">(2, 1)</td>
+<td class="left">(2, 2)</td>
+<td class="left">(2, 3)</td>
+<td class="left">(2, 4)</td>
+<td class="left">(2, 5)</td>
+<td class="left">(2, 6)</td>
+<td class="left">(2, 7)</td>
+<td class="left">(2, 8)</td>
+</tr>
+
+<tr>
+<td class="left">Notation</td>
+<td class="left">\(e_1^{(2)}\)</td>
+<td class="left">\(e_2^{(2)}\)</td>
+<td class="left">\(e_3^{(2)}\)</td>
+<td class="left">\(e_4^{(2)}\)</td>
+<td class="left">\(e_5^{(2)}\)</td>
+<td class="left">\(e_6^{(2)}\)</td>
+<td class="left">\(e_7^{(2)}\)</td>
+<td class="left">\(e_8^{(2)}\)</td>
+</tr>
+</tbody>
+</table>
+<p>
+…
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">Graph</td>
+<td class="left">(6, 1)</td>
+<td class="left">(6, 2)</td>
+<td class="left">(6, 3)</td>
+<td class="left">(6, 4)</td>
+<td class="left">(6, 5)</td>
+<td class="left">(6, 6)</td>
+<td class="left">(6, 7)</td>
+<td class="left">(6, 8)</td>
+</tr>
+
+<tr>
+<td class="left">Notation</td>
+<td class="left">\(e_1^{(6)}\)</td>
+<td class="left">\(e_2^{(6)}\)</td>
+<td class="left">\(e_3^{(6)}\)</td>
+<td class="left">\(e_4^{(6)}\)</td>
+<td class="left">\(e_5^{(6)}\)</td>
+<td class="left">\(e_6^{(6)}\)</td>
+<td class="left">\(e_7^{(6)}\)</td>
+<td class="left">\(e_8^{(6)}\)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Initial Data Layer</h3>
+<div class="outline-text-3" id="text-3-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Challenge</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">\(e_1^{(0)}\)</td>
+<td class="left">\(e_2^{(0)}\)</td>
+<td class="left">\(e_3^{(0)}\)</td>
+<td class="left">\(e_4^{(0)}\)</td>
+<td class="left">\(e_5^{(0)}\)</td>
+<td class="left">\(e_6^{(0)}\)</td>
+<td class="left">\(e_7^{(0)}\)</td>
+<td class="left">\(e_8^{(0)}\)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<ol class="org-ol"><li><a id="sec-3-3-1" name="sec-3-3-1"></a>Vector Commitment<br  /><div class="outline-text-4" id="text-3-3-1">
+<p>
+Generate Merkle root for data leaves.
+</p>
+
+<p>
+\(Comm_D = VC(D_i)\), where \(D_i = \{e_1^{(0)}, …, e_n^{(0)}\}\).
+</p>
+
+<p>
+This example: $Comm<sub>D</sub> = VC(e<sub>1</sub><sup>(0)</sup>, e<sub>2</sub><sup>(0)</sup>, e<sub>3</sub><sup>(0)</sup>, e<sub>4</sub><sup>(0)</sup>, e<sub>5</sub><sup>(0)</sup>, e<sub>6</sub><sup>(0)</sup>, e<sub>7</sub><sup>(0)</sup>, e<sub>8</sub><sup>(0)</sup>).
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-3-2" name="sec-3-3-2"></a>Opening<br  /><div class="outline-text-4" id="text-3-3-2">
+<p>
+To open \(D_i\), provide a merkle proof \(D_i \rightarrow Comm_D\).
+</p>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> ZigZag Replica Columns</h3>
+<div class="outline-text-3" id="text-3-4">
+</div><ol class="org-ol"><li><a id="sec-3-4-1" name="sec-3-4-1"></a>Odd Partition<br  /><div class="outline-text-4" id="text-3-4-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">DRG Parents</td>
+<td class="left">Odd Expander Parents</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Challenges</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Expander Parents</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">\(e_1^{(1)}\)</td>
+<td class="left">\(e_2^{(1)}\)</td>
+<td class="left">\(e_3^{(1)}\)</td>
+<td class="left">\(e_4^{(1)}\)</td>
+<td class="left">\(e_5^{(1)}\)</td>
+<td class="left">\(e_6^{(1)}\)</td>
+<td class="left">\(e_7^{(1)}\)</td>
+<td class="left">\(e_8^{(1)}\)</td>
+</tr>
+
+<tr>
+<td class="left">\(e_1^{(3)}\)</td>
+<td class="left">\(e_2^{(3)}\)</td>
+<td class="left">\(e_3^{(3)}\)</td>
+<td class="left">\(e_4^{(3)}\)</td>
+<td class="left">\(e_5^{(3)}\)</td>
+<td class="left">\(e_6^{(3)}\)</td>
+<td class="left">\(e_7^{(3)}\)</td>
+<td class="left">\(e_8^{(3)}\)</td>
+</tr>
+
+<tr>
+<td class="left">\(e_1^{(5)}\)</td>
+<td class="left">\(e_2^{(5)}\)</td>
+<td class="left">\(e_3^{(5)}\)</td>
+<td class="left">\(e_4^{(5)}\)</td>
+<td class="left">\(e_5^{(5)}\)</td>
+<td class="left">\(e_6^{(5)}\)</td>
+<td class="left">\(e_7^{(5)}\)</td>
+<td class="left">\(e_8^{(5)}\)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Concatenate and hash rows of column \(i\) to construct \(O_i\).
+</p>
+
+<p>
+Column hash \(O_i = H(e_i^{(1)}, e_i^{(3)}, … e_i^{(L-1)})\).
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-2" name="sec-3-4-2"></a>Even Partition<br  /><div class="outline-text-4" id="text-3-4-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">DRG Parents</td>
+<td class="left">Odd Expander Parents</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Challenges</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Expander Parents</td>
+<td class="left">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="left">\(e_8^{(2)}\)</td>
+<td class="left">\(e_7^{(2)}\)</td>
+<td class="left">\(e_6^{(2)}\)</td>
+<td class="left">\(e_5^{(2)}\)</td>
+<td class="left">\(e_4^{(2)}\)</td>
+<td class="left">\(e_3^{(2)}\)</td>
+<td class="left">\(e_2^{(2)}\)</td>
+<td class="left">\(e_1^{(2)}\)</td>
+</tr>
+
+<tr>
+<td class="left">\(e_8^{(4)}\)</td>
+<td class="left">\(e_7^{(4)}\)</td>
+<td class="left">\(e_6^{(4)}\)</td>
+<td class="left">\(e_5^{(4)}\)</td>
+<td class="left">\(e_4^{(4)}\)</td>
+<td class="left">\(e_3^{(4)}\)</td>
+<td class="left">\(e_2^{(4)}\)</td>
+<td class="left">\(e_1^{(4)}\)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+Concatenate and hash rows of column \(i\) to construct \(E_i\).
+</p>
+
+<p>
+Column hash \(E_i = H(e_i^{(2)}, e_i^{(4)}, … e_i^{(L)})\).
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-3" name="sec-3-4-3"></a>Vector Commitment<br  /><div class="outline-text-4" id="text-3-4-3">
+<p>
+Produce the column leaves: \(C_i = H(O_i || E_i)\).
+</p>
+
+<p>
+Generate Merkle tree for column leaves:
+</p>
+
+<p>
+\(CommC = VC(C_1 || C_2 || … || C_n)\).
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-4" name="sec-3-4-4"></a>Opening<br  /><ol class="org-ol"><li><a id="sec-3-4-4-1" name="sec-3-4-4-1"></a>To open only odd-layer labels<br  /><div class="outline-text-5" id="text-3-4-4-1">
+<p>
+Reveal all odd-layer labels and prove they hash to \(O_i\) (\(L / 2\) hash proofs).
+Reveal the \(E_i\) (\(0\) hash proofs).
+</p>
+
+<p>
+Note: odd-layer labels of \(C_i\) have index \(i\).
+</p>
+</div>
+</li>
+<li><a id="sec-3-4-4-2" name="sec-3-4-4-2"></a>To open only even layer labels<br  /><div class="outline-text-5" id="text-3-4-4-2">
+<p>
+Reveal all even layer labels and prove they hash to \(E_i\)  (\(L / 2\) hash proofs).
+Reveal the \(O_i\) (\(0\) hash proofs).
+</p>
+
+<p>
+Note: even-layer labels of \(C_i\) have index \((N-i)+1\).
+</p>
+</div>
+</li>
+<li><a id="sec-3-4-4-3" name="sec-3-4-4-3"></a>To open all labels<br  /><div class="outline-text-5" id="text-3-4-4-3">
+<p>
+Reveal all labels and prove they hash to \(E_i\) and \(O_i\) as above. (\(L\) hash proofs).
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-4-4-4" name="sec-3-4-4-4"></a>Then, in every case<br  /><div class="outline-text-5" id="text-3-4-4-4">
+<ul class="org-ul">
+<li>Prove \(H(O_i, E_i) \rightarrow Comm_C\).
+</li>
+<li>Reveal \(Comm_{R_{LAST}}\) and prove that $H(Comm<sub>C</sub>, Comm<sub>R<sub>LAST</sub></sub>) = \(Comm_R\).
+</li>
+</ul>
+</div>
+</li></ol>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><span class="section-number-3">3.5</span> Final Replica Layer</h3>
+<div class="outline-text-3" id="text-3-5">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Challenge</td>
+<td class="left">&#xa0;</td>
+<td class="left">&#xa0;</td>
+<td class="left">Even Expander Parent</td>
+<td class="left">Even DRG Parent</td>
+</tr>
+
+<tr>
+<td class="left">\(e_1^{(6)}\)</td>
+<td class="left">\(e_2^{(6)}\)</td>
+<td class="left">\(e_3^{(6)}\)</td>
+<td class="left">\(e_4^{(6)}\)</td>
+<td class="left">\(e_5^{(6)}\)</td>
+<td class="left">\(e_6^{(6)}\)</td>
+<td class="left">\(e_7^{(6)}\)</td>
+<td class="left">\(e_8^{(6)}\)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<ol class="org-ol"><li><a id="sec-3-5-1" name="sec-3-5-1"></a>Vector Commitment<br  /><div class="outline-text-4" id="text-3-5-1">
+<p>
+Generate Merkle tree for replica leaves.
+</p>
+
+<p>
+\(R_{LAST_i} = e_i^{(L)}\).
+</p>
+
+<p>
+\(Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_n})\).
+</p>
+</div>
+</li>
+
+<li><a id="sec-3-5-2" name="sec-3-5-2"></a>Opening<br  /><div class="outline-text-4" id="text-3-5-2">
+<p>
+To open \(R_{LAST_i}\),
+</p>
+<ul class="org-ul">
+<li>Provide a merkle proof \(R_{LAST_i} \rightarrow Comm_{R_{LAST}}\).
+</li>
+<li>Reveal \(Comm_C\) and prove that $H(Comm<sub>C</sub>, Comm<sub>R<sub>LAST</sub></sub>) = \(Comm_R\).
+</li>
+</ul>
+</div>
+</li></ol>
+</div>
+
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6"><span class="section-number-3">3.6</span> Replica Commitment</h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+Produce \(Comm_R\) from its constituents.
+</p>
+
+<p>
+\(Comm_R = H(Comm_C, Comm_{R_{LAST}})\).
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Opening Commitments for Proof</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+For use in all challenge proofs, reveal \(Comm_C\) and \(Comm_{R_{LAST}}\) and prove that $H(Comm<sub>C</sub>, Comm<sub>R<sub>LAST</sub></sub>) =
+\(Comm_R\).
+</p>
+
+<p>
+To prove encoding for a challenged label \(C\) on odd layers \(l_{odd}\) and \(C_{even}\) on even layers \(l_{even}\).
+</p>
+<ul class="org-ul">
+<li>Let \(C_{even} = (N-C)+1\).
+</li>
+<li>Initial data layer openings
+<ul class="org-ul">
+<li>Open label for challenged data node $e<sub>C</sub><sup>(0)</sup> — using \(Comm_D\).
+</li>
+</ul>
+</li>
+<li>ZigZag replica column openings
+<ul class="org-ul">
+<li>Open all labels in the column containing challenged label — using \(Comm_C\).
+</li>
+<li>Open all labels in the columns containing challenged label's DRG parents — using \(Comm_C\).
+</li>
+<li>Open only even labels in the columns containing challenged label's even expander parents — using \(Comm_C\) and \(O_C\).
+</li>
+<li>Open only odd labels in the columns containing challenged label's odd expander parents — using \(Comm_C\) and \(E_{C_{even}}\).
+</li>
+</ul>
+</li>
+<li>Final replica layer openings
+<ul class="org-ul">
+<li>Open all challenged labels (\(e_C^{(L)}\)) and odd challenged parents (any kind) — using \(Comm_{R_{LAST}}\).
+</li>
+</ul>
+</li>
+<li>Prove encoding as usual for all odd \(e{_C}^{(l_{odd})}\) and even \(e{_{C_{even}}}^{(l_{even})}\).
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
