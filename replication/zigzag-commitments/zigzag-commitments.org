@@ -210,7 +210,7 @@ Generate Merkle root for data leaves.
 
 $Comm_D = VC(D_i)$, where $D_i = \{e_1^{(0)}, …, e_n^{(0)}\}$.
 
-This example: $Comm_D = VC(e_1^{(0)}, e_2^{(0)}, e_3^{(0)}, e_4^{(0)}, e_5^{(0)}, e_6^{(0)}, e_7^{(0)}, e_8^{(0)}).
+This example: $Comm_D = VC(e_1^{(0)}, e_2^{(0)}, e_3^{(0)}, e_4^{(0)}, e_5^{(0)}, e_6^{(0)}, e_7^{(0)}, e_8^{(0)})$.
 
 *** Opening
 To open $D_i$, provide a merkle proof $D_i \rightarrow Comm_D$.
@@ -269,7 +269,7 @@ Reveal all labels and prove they hash to $E_i$ and $O_i$ as above. ($L$ hash pro
 
 **** Then, in every case
 - Prove $H(O_i, E_i) \rightarrow Comm_C$.
-- Reveal $Comm_{R_{LAST}}$ and prove that $H(Comm_C, Comm_{R_{LAST}}) = $Comm_R$.
+- Reveal $Comm_{R_{LAST}}$ and prove that $H(Comm_C, Comm_{R_{LAST}}) = Comm_R$.
 
 ** Final Replica Layer
  #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
@@ -290,7 +290,7 @@ $Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_n})$.
 *** Opening
 To open $R_{LAST_i}$,
 - Provide a merkle proof $R_{LAST_i} \rightarrow Comm_{R_{LAST}}$.
-- Reveal $Comm_C$ and prove that $H(Comm_C, Comm_{R_{LAST}}) = $Comm_R$.
+- Reveal $Comm_C$ and prove that $H(Comm_C, Comm_{R_{LAST}}) = Comm_R$.
 
 ** Replica Commitment
  Produce $Comm_R$ from its constituents.
@@ -298,12 +298,12 @@ To open $R_{LAST_i}$,
  $Comm_R = H(Comm_C, Comm_{R_{LAST}})$.
 * Opening Commitments for Proof
 For use in all challenge proofs, reveal $Comm_C$ and $Comm_{R_{LAST}}$ and prove that $H(Comm_C, Comm_{R_{LAST}}) =
-$Comm_R$.
+Comm_R$.
 
 To prove encoding for a challenged label $C$ on odd layers $l_{odd}$ and $C_{even}$ on even layers $l_{even}$.
 - Let $C_{even} = (N-C)+1$.
 - Initial data layer openings
-  - Open label for challenged data node $e_C^{(0)} — using $Comm_D$.
+  - Open label for challenged data node $e_C^{(0)} — using Comm_D$.
 - ZigZag replica column openings
   - Open all labels in the column containing challenged label — using $Comm_C$.
   - Open all labels in the columns containing challenged label's DRG parents — using $Comm_C$.

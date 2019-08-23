@@ -92,7 +92,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
 <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"></script>
 <script type="text/javascript">
 /*
 @licstart  The following is the entire license notice for the
@@ -139,7 +139,6 @@ for the JavaScript code in this tag.
  }
 /*]]>*///-->
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js"></script>
 <script type="text/javascript">
 <!--/*--><![CDATA[/*><!--*/
     MathJax.Hub.Config({
@@ -593,7 +592,7 @@ Generate Merkle root for data leaves.
 </p>
 
 <p>
-This example: $Comm<sub>D</sub> = VC(e<sub>1</sub><sup>(0)</sup>, e<sub>2</sub><sup>(0)</sup>, e<sub>3</sub><sup>(0)</sup>, e<sub>4</sub><sup>(0)</sup>, e<sub>5</sub><sup>(0)</sup>, e<sub>6</sub><sup>(0)</sup>, e<sub>7</sub><sup>(0)</sup>, e<sub>8</sub><sup>(0)</sup>).
+This example: \(Comm_D = VC(e_1^{(0)}, e_2^{(0)}, e_3^{(0)}, e_4^{(0)}, e_5^{(0)}, e_6^{(0)}, e_7^{(0)}, e_8^{(0)})\).
 </p>
 </div>
 </li>
@@ -803,7 +802,7 @@ Reveal all labels and prove they hash to \(E_i\) and \(O_i\) as above. (\(L\) ha
 <ul class="org-ul">
 <li>Prove \(H(O_i, E_i) \rightarrow Comm_C\).
 </li>
-<li>Reveal \(Comm_{R_{LAST}}\) and prove that $H(Comm<sub>C</sub>, Comm<sub>R<sub>LAST</sub></sub>) = \(Comm_R\).
+<li>Reveal \(Comm_{R_{LAST}}\) and prove that \(H(Comm_C, Comm_{R_{LAST}}) = Comm_R\).
 </li>
 </ul>
 </div>
@@ -882,7 +881,7 @@ To open \(R_{LAST_i}\),
 <ul class="org-ul">
 <li>Provide a merkle proof \(R_{LAST_i} \rightarrow Comm_{R_{LAST}}\).
 </li>
-<li>Reveal \(Comm_C\) and prove that $H(Comm<sub>C</sub>, Comm<sub>R<sub>LAST</sub></sub>) = \(Comm_R\).
+<li>Reveal \(Comm_C\) and prove that \(H(Comm_C, Comm_{R_{LAST}}) = Comm_R\).
 </li>
 </ul>
 </div>
@@ -906,8 +905,8 @@ Produce \(Comm_R\) from its constituents.
 <h2 id="sec-4"><span class="section-number-2">4</span> Opening Commitments for Proof</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-For use in all challenge proofs, reveal \(Comm_C\) and \(Comm_{R_{LAST}}\) and prove that $H(Comm<sub>C</sub>, Comm<sub>R<sub>LAST</sub></sub>) =
-\(Comm_R\).
+For use in all challenge proofs, reveal \(Comm_C\) and \(Comm_{R_{LAST}}\) and prove that \(H(Comm_C, Comm_{R_{LAST}}) =
+Comm_R\).
 </p>
 
 <p>
@@ -918,7 +917,7 @@ To prove encoding for a challenged label \(C\) on odd layers \(l_{odd}\) and \(C
 </li>
 <li>Initial data layer openings
 <ul class="org-ul">
-<li>Open label for challenged data node $e<sub>C</sub><sup>(0)</sup> — using \(Comm_D\).
+<li>Open label for challenged data node \(e_C^{(0)} — using Comm_D\).
 </li>
 </ul>
 </li>
