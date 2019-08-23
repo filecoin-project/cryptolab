@@ -251,8 +251,11 @@ graph topology, but it is not tracked in the tables below.
 <li>The expander parents do not alternate in this way. The edges between nodes and their expander parents are reversed between layers.
 </li>
 </ul>
-</div>
 
+<p>
+In order to have a compact and concrete example, we use a graph containing only 8 nodes replicated in 6 layers.
+</p>
+</div>
 <div id="outline-container-sec-2-1" class="outline-3">
 <h3 id="sec-2-1"><span class="section-number-3">2.1</span> Legend</h3>
 <div class="outline-text-3" id="text-2-1">
@@ -357,7 +360,8 @@ Their construction is described below.
 <h3 id="sec-3-2"><span class="section-number-3">3.2</span> Definitions and Notation</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-We will perform \(L\) layers of ZigZag replication over \(n\) labeled nodes.
+We will perform \(L\) layers of ZigZag replication over \(N\) labeled nodes. The algorithm described here assumes, for
+simplicity of explanation, that \(L\) is even. This is a safe assumption given the actual parameters used by Filecoin.
 </p>
 
 <p>
@@ -369,7 +373,7 @@ Hashes are produced with a hash function \(H(…)\), which is not necessarily th
 </p>
 
 <p>
-\(Comm = VC(l_1,…l_n)\), where the \(l_i\) are the data (labels or hashes) to be committed.
+\(Comm = VC(l_1,…l_N)\), where the \(l_i\) are the data (labels or hashes) to be committed.
 </p>
 
 <p>
@@ -378,9 +382,21 @@ created. We will designate such proofs \(l_i \rightarrow Comm\).
 </p>
 
 <p>
-We use the notation \(e{_i}^{(l)}\), correlated in the table below with the \((l, i)\) notation used in the
-graphs above, where \(l\) indexes layers, and \(i\) indexes labels.
+We use the notation \(e{_i}^{(l)}\), correlated in the table below with the \((l, i)\) notation used in the graphs above,
+where \(l\) indexes layers, and \(i\) indexes labels or columns. Column indexes always have the property that the label of
+the column's first/odd layer has the same index as the column itself.
 </p>
+
+<p>
+To avoid inlining the 'renumbering' calculation whenever indexing even layers, we use the notation \(\bar{i}\) to
+represent the renumbered index, \(\bar{i} = N - i + 1\).
+</p>
+
+<p>
+Taken together, the previous two paragraphs imply that the first layer's label in \(Column_i\) is \(e_i^{(1)}\) and the second
+layer's label is \(e_{\bar{i}}^{(2)}\).
+</p>
+
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -589,7 +605,7 @@ Generate Merkle root for data leaves.
 </p>
 
 <p>
-\(Comm_D = VC(D_i)\), where \(D_i = \{e_1^{(0)}, …, e_n^{(0)}\}\).
+\(Comm_D = VC(D_i)\), where \(D_i = \{e_1^{(0)}, …, e_N^{(0)}\}\).
 </p>
 
 <p>
@@ -842,7 +858,11 @@ Concatenate and hash rows of column \(i\) to construct \(E_i\).
 </p>
 
 <p>
-Column hash \(E_i = H(e_i^{(2)} || e_i^{(4)} || … e_i^{(L)})\).
+Remember that column with index \(i\) contains even-layered labels of index \(\bar{i} = N - i + 1\).
+</p>
+
+<p>
+Column hash \(E_i = H(e_{\bar{i}}^{(2)} || e_{\bar{i}}^{(4)} || … e_{\bar{i}}^{(L)})\).
 </p>
 </div>
 </li>
@@ -857,7 +877,7 @@ Generate Merkle tree for column leaves:
 </p>
 
 <p>
-\(CommC = VC(C_1 || C_2 || … || C_n)\).
+\(CommC = VC(C_1 || C_2 || … || C_N)\).
 </p>
 </div>
 </li>
@@ -880,7 +900,7 @@ Reveal the \(O_i\) (\(0\) hash proofs).
 </p>
 
 <p>
-Note: even-layer labels of \(C_i\) have index \((N-i)+1\).
+Note: even-layer labels of \(C_i\) have index \(N-i+1\).
 </p>
 </div>
 </li>
@@ -962,7 +982,7 @@ Generate Merkle tree for replica leaves.
 </p>
 
 <p>
-\(Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_n})\).
+\(Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_N})\).
 </p>
 </div>
 </li>
@@ -1003,10 +1023,10 @@ Comm_R\).
 </p>
 
 <p>
-To prove encoding for a challenged label \(C\) on odd layers \(l_{odd}\) and \(C_{even}\) on even layers \(l_{even}\).
+To prove encoding for a challenged label \(C\) on odd layers \(l_{odd}\) and \(\bar{C}\) on even layers \(l_{even}\).
 </p>
 <ul class="org-ul">
-<li>Let \(C_{even} = (N-C)+1\).
+<li>Remember that \(\bar{C} = (N-C)+1\).
 </li>
 <li>Initial data layer openings
 <ul class="org-ul">
@@ -1016,23 +1036,26 @@ To prove encoding for a challenged label \(C\) on odd layers \(l_{odd}\) and \(C
 </li>
 <li>ZigZag replica column openings
 <ul class="org-ul">
-<li>Open all labels in the column containing challenged label — using \(Comm_C\).
+<li>Open all labels in \(Column_i\) containing challenged label's 'replica node', (\(C_i\)) — using \(Comm_C\).
+</li>
+<li>Open only odd-layer labels in the 'renumbered' column (\(Column_{\bar{i}}\)) — using \(Comm_C\). (This contains the
+challenged label's 'data node', \(e_i^{(L-1)}\).)
 </li>
 <li>Open all labels in the columns containing challenged label's DRG parents — using \(Comm_C\).
 </li>
-<li>Open only even labels in the columns containing challenged label's even expander parents — using \(Comm_C\) and \(O_C\).
+<li>Open only even-layer labels in the columns containing challenged label's even expander parents — using \(Comm_C\) and \(O_C\).
 </li>
-<li>Open only odd labels in the columns containing challenged label's odd expander parents — using \(Comm_C\) and \(E_{C_{even}}\).
+<li>Open only odd-layer labels in the columns containing challenged label's odd-layer expander parents — using \(Comm_C\) and \(E_{\bar{C}}\).
 </li>
 </ul>
 </li>
 <li>Final replica layer openings
 <ul class="org-ul">
-<li>Open all challenged labels (\(e_C^{(L)}\)) and odd challenged parents (any kind) — using \(Comm_{R_{LAST}}\).
+<li>Open all challenged labels (\(e_C^{(L)}\)) and even challenged parents (any kind) — using \(Comm_{R_{LAST}}\).
 </li>
 </ul>
 </li>
-<li>Prove encoding as usual for all odd \(e{_C}^{(l_{odd})}\) and even \(e{_{C_{even}}}^{(l_{even})}\).
+<li>Prove encoding as usual for all odd-layer \(e{_C}^{(l_{odd})}\) and even-layer \(e{_{\bar{C}}}^{(l_{even})}\).
 </li>
 </ul>
 </div>

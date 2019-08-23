@@ -48,6 +48,7 @@ graph topology, but it is not tracked in the tables below.
 - The DRG parents alternate in the same way.
 - The expander parents do not alternate in this way. The edges between nodes and their expander parents are reversed between layers.
 
+In order to have a compact and concrete example, we use a graph containing only 8 nodes replicated in 6 layers.
 ** Legend
 #+BEGIN_SRC dot :file legend-odd.png :var input=legend-odd :exports results
 $input
@@ -158,19 +159,28 @@ $Comm_R = H(Comm_C || Comm_{R_{LAST}})$.
 Their construction is described below.
 
 ** Definitions and Notation
-We will perform $L$ layers of ZigZag replication over $n$ labeled nodes.
+We will perform $L$ layers of ZigZag replication over $N$ labeled nodes. The algorithm described here assumes, for
+simplicity of explanation, that $L$ is even. This is a safe assumption given the actual parameters used by Filecoin.
 
 Merkle roots (commitments) are generated with the vector-commitment function $VC(…)$.
 
 Hashes are produced with a hash function $H(…)$, which is not necessarily that used by $VC(…)$.
 
-$Comm = VC(l_1,…l_n)$, where the $l_i$ are the data (labels or hashes) to be committed.
+$Comm = VC(l_1,…l_N)$, where the $l_i$ are the data (labels or hashes) to be committed.
 
 Generated trees are retained until the proving phase, when merkle proofs of a given label's inclusion in $Comm$ will be
 created. We will designate such proofs $l_i \rightarrow Comm$.
 
-We use the notation $e{_i}^{(l)}$, correlated in the table below with the $(l, i)$ notation used in the
-graphs above, where $l$ indexes layers, and $i$ indexes labels.
+We use the notation $e{_i}^{(l)}$, correlated in the table below with the $(l, i)$ notation used in the graphs above,
+where $l$ indexes layers, and $i$ indexes labels or columns. Column indexes always have the property that the label of
+the column's first/odd layer has the same index as the column itself.
+
+To avoid inlining the 'renumbering' calculation whenever indexing even layers, we use the notation $\bar{i}$ to
+represent the renumbered index, $\bar{i} = N - i + 1$.
+
+Taken together, the previous two paragraphs imply that the first layer's label in $Column_i$ is $e_i^{(1)}$ and the second
+layer's label is $e_{\bar{i}}^{(2)}$.
+
 
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
 (notation-row *zigzag-graph* 1)
@@ -208,7 +218,7 @@ graphs above, where $l$ indexes layers, and $i$ indexes labels.
 *** Vector Commitment
 Generate Merkle root for data leaves.
 
-$Comm_D = VC(D_i)$, where $D_i = \{e_1^{(0)}, …, e_n^{(0)}\}$.
+$Comm_D = VC(D_i)$, where $D_i = \{e_1^{(0)}, …, e_N^{(0)}\}$.
 
 This example: $Comm_D = VC(e_1^{(0)}, e_2^{(0)}, e_3^{(0)}, e_4^{(0)}, e_5^{(0)}, e_6^{(0)}, e_7^{(0)}, e_8^{(0)})$.
 
@@ -257,14 +267,17 @@ Column hash $O_i = H(e_i^{(1)} || e_i^{(3)} || … e_i^{(L-1)})$.
 
 Concatenate and hash rows of column $i$ to construct $E_i$.
 
-Column hash $E_i = H(e_i^{(2)} || e_i^{(4)} || … e_i^{(L)})$.
+Remember that column with index $i$ contains even-layered labels of index $\bar{i} = N - i + 1$.
+
+Column hash $E_i = H(e_{\bar{i}}^{(2)} || e_{\bar{i}}^{(4)} || … e_{\bar{i}}^{(L)})$.
 
 *** Vector Commitment
+
 Produce the column leaves: $C_i = H(O_i || E_i)$.
 
 Generate Merkle tree for column leaves:
 
-$CommC = VC(C_1 || C_2 || … || C_n)$.
+$CommC = VC(C_1 || C_2 || … || C_N)$.
 
 *** Opening
 **** To open only odd-layer labels
@@ -276,7 +289,7 @@ Note: odd-layer labels of $C_i$ have index $i$.
 Reveal all even layer labels and prove they hash to $E_i$  ($L / 2$ hash proofs).
 Reveal the $O_i$ ($0$ hash proofs).
 
-Note: even-layer labels of $C_i$ have index $(N-i)+1$.
+Note: even-layer labels of $C_i$ have index $N-i+1$.
 **** To open all labels
 Reveal all labels and prove they hash to $E_i$ and $O_i$ as above. ($L$ hash proofs).
 
@@ -298,7 +311,7 @@ Generate Merkle tree for replica leaves.
 
 $R_{LAST_i} = e_i^{(L)}$.
 
-$Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_n})$.
+$Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_N})$.
 
 *** Opening
 To open $R_{LAST_i}$,
@@ -313,18 +326,20 @@ To open $R_{LAST_i}$,
 For use in all challenge proofs, reveal $Comm_C$ and $Comm_{R_{LAST}}$ and prove that $H(Comm_C || Comm_{R_{LAST}}) =
 Comm_R$.
 
-To prove encoding for a challenged label $C$ on odd layers $l_{odd}$ and $C_{even}$ on even layers $l_{even}$.
-- Let $C_{even} = (N-C)+1$.
+To prove encoding for a challenged label $C$ on odd layers $l_{odd}$ and $\bar{C}$ on even layers $l_{even}$.
+- Remember that $\bar{C} = (N-C)+1$.
 - Initial data layer openings
   - Open label for challenged data node $e_C^{(0)} — using Comm_D$.
 - ZigZag replica column openings
-  - Open all labels in the column containing challenged label — using $Comm_C$.
+  - Open all labels in $Column_i$ containing challenged label's 'replica node', ($C_i$) — using $Comm_C$.
+  - Open only odd-layer labels in the 'renumbered' column ($Column_{\bar{i}}$) — using $Comm_C$. (This contains the
+    challenged label's 'data node', $e_i^{(L-1)}$.)
   - Open all labels in the columns containing challenged label's DRG parents — using $Comm_C$.
-  - Open only even labels in the columns containing challenged label's even expander parents — using $Comm_C$ and $O_C$.
-  - Open only odd labels in the columns containing challenged label's odd expander parents — using $Comm_C$ and $E_{C_{even}}$.
+  - Open only even-layer labels in the columns containing challenged label's even expander parents — using $Comm_C$ and $O_C$.
+  - Open only odd-layer labels in the columns containing challenged label's odd-layer expander parents — using $Comm_C$ and $E_{\bar{C}}$.
 - Final replica layer openings
-  - Open all challenged labels ($e_C^{(L)}$) and odd challenged parents (any kind) — using $Comm_{R_{LAST}}$.
-- Prove encoding as usual for all odd $e{_C}^{(l_{odd})}$ and even $e{_{C_{even}}}^{(l_{even})}$.
+  - Open all challenged labels ($e_C^{(L)}$) and even challenged parents (any kind) — using $Comm_{R_{LAST}}$.
+- Prove encoding as usual for all odd-layer $e{_C}^{(l_{odd})}$ and even-layer $e{_{\bar{C}}}^{(l_{even})}$.
 
 * Opening Commitments for Online Proof
 To prove encoding for a challenged label $C$ in the replica:
