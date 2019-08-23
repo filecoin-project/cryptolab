@@ -207,7 +207,8 @@ for the JavaScript code in this tag.
 <li><a href="#sec-3-6">3.6. Replica Commitment</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">4. Opening Commitments for Proof</a></li>
+<li><a href="#sec-4">4. Opening Commitments for Offline Proof</a></li>
+<li><a href="#sec-5">5. Opening Commitments for Online Proof</a></li>
 </ul>
 </div>
 </div>
@@ -343,7 +344,7 @@ We will generate two commitments \(Comm_R, Comm_D\) to be placed on chain.
 </p>
 
 <p>
-\(Comm_R = H(Comm_C, Comm_{R_{LAST}})\).
+\(Comm_R = H(Comm_C || Comm_{R_{LAST}})\).
 </p>
 
 <p>
@@ -558,14 +559,14 @@ graphs above, where \(l\) indexes layers, and \(i\) indexes labels.
 </colgroup>
 <tbody>
 <tr>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
 <td class="left">Even Challenge</td>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
+<td class="left"><code>~~~~</code></td>
 </tr>
 
 <tr>
@@ -631,14 +632,14 @@ To open \(D_i\), provide a merkle proof \(D_i \rightarrow Comm_D\).
 </colgroup>
 <tbody>
 <tr>
-<td class="left">DRG Parents</td>
 <td class="left">Odd Expander Parents</td>
 <td class="left"><code>~~~~</code></td>
 <td class="left"><code>~~~~</code></td>
-<td class="left">Even Expander Parents</td>
+<td class="left">DRG Parents</td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
 <td class="left">Challenges</td>
-<td class="left"><code>~~~~</code></td>
-<td class="left"><code>~~~~</code></td>
+<td class="left">Even Expander Parents</td>
 </tr>
 
 <tr>
@@ -723,14 +724,14 @@ To open \(D_i\), provide a merkle proof \(D_i \rightarrow Comm_D\).
 </colgroup>
 <tbody>
 <tr>
-<td class="left">DRG Parents</td>
 <td class="left">Odd Expander Parents</td>
 <td class="left"><code>~~~~</code></td>
 <td class="left"><code>~~~~</code></td>
-<td class="left">Even Expander Parents</td>
+<td class="left">DRG Parents</td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
 <td class="left">Challenges</td>
-<td class="left"><code>~~~~</code></td>
-<td class="left"><code>~~~~</code></td>
+<td class="left">Even Expander Parents</td>
 </tr>
 
 <tr>
@@ -773,7 +774,7 @@ Concatenate and hash rows of column \(i\) to construct \(O_i\).
 </p>
 
 <p>
-Column hash \(O_i = H(e_i^{(1)}, e_i^{(3)}, … e_i^{(L-1)})\).
+Column hash \(O_i = H(e_i^{(1)} || e_i^{(3)} || … e_i^{(L-1)})\).
 </p>
 </div>
 </li>
@@ -801,14 +802,14 @@ Column hash \(O_i = H(e_i^{(1)}, e_i^{(3)}, … e_i^{(L-1)})\).
 </colgroup>
 <tbody>
 <tr>
-<td class="left">DRG Parents</td>
 <td class="left">Odd Expander Parents</td>
 <td class="left"><code>~~~~</code></td>
 <td class="left"><code>~~~~</code></td>
-<td class="left">Even Expander Parents</td>
+<td class="left">DRG Parents</td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
 <td class="left">Challenges</td>
-<td class="left"><code>~~~~</code></td>
-<td class="left"><code>~~~~</code></td>
+<td class="left">Even Expander Parents</td>
 </tr>
 
 <tr>
@@ -841,7 +842,7 @@ Concatenate and hash rows of column \(i\) to construct \(E_i\).
 </p>
 
 <p>
-Column hash \(E_i = H(e_i^{(2)}, e_i^{(4)}, … e_i^{(L)})\).
+Column hash \(E_i = H(e_i^{(2)} || e_i^{(4)} || … e_i^{(L)})\).
 </p>
 </div>
 </li>
@@ -892,9 +893,9 @@ Reveal all labels and prove they hash to \(E_i\) and \(O_i\) as above. (\(L\) ha
 
 <li><a id="sec-3-4-5-4" name="sec-3-4-5-4"></a>Then, in every case<br  /><div class="outline-text-5" id="text-3-4-5-4">
 <ul class="org-ul">
-<li>Prove \(H(O_i, E_i) \rightarrow Comm_C\).
+<li>Prove \(H(O_i || E_i) \rightarrow Comm_C\).
 </li>
-<li>Reveal \(Comm_{R_{LAST}}\) and prove that \(H(Comm_C, Comm_{R_{LAST}}) = Comm_R\).
+<li>Reveal \(Comm_{R_{LAST}}\) and prove that \(H(Comm_C || Comm_{R_{LAST}}) = Comm_R\).
 </li>
 </ul>
 </div>
@@ -927,14 +928,14 @@ Reveal all labels and prove they hash to \(E_i\) and \(O_i\) as above. (\(L\) ha
 </colgroup>
 <tbody>
 <tr>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
+<td class="left"><code>~~~~</code></td>
 <td class="left">Even Challenge</td>
-<td class="left">&#xa0;</td>
-<td class="left">Even Expander Parent</td>
-<td class="left">&#xa0;</td>
-<td class="left">&#xa0;</td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
 <td class="left">Even DRG Parent</td>
+<td class="left"><code>~~~~</code></td>
+<td class="left"><code>~~~~</code></td>
+<td class="left">Even Expander Parent</td>
 </tr>
 
 <tr>
@@ -973,7 +974,7 @@ To open \(R_{LAST_i}\),
 <ul class="org-ul">
 <li>Provide a merkle proof \(R_{LAST_i} \rightarrow Comm_{R_{LAST}}\).
 </li>
-<li>Reveal \(Comm_C\) and prove that \(H(Comm_C, Comm_{R_{LAST}}) = Comm_R\).
+<li>Reveal \(Comm_C\) and prove that \(H(Comm_C || Comm_{R_{LAST}}) = Comm_R\).
 </li>
 </ul>
 </div>
@@ -988,16 +989,16 @@ Produce \(Comm_R\) from its constituents.
 </p>
 
 <p>
-\(Comm_R = H(Comm_C, Comm_{R_{LAST}})\).
+\(Comm_R = H(Comm_C || Comm_{R_{LAST}})\).
 </p>
 </div>
 </div>
 </div>
 <div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> Opening Commitments for Proof</h2>
+<h2 id="sec-4"><span class="section-number-2">4</span> Opening Commitments for Offline Proof</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-For use in all challenge proofs, reveal \(Comm_C\) and \(Comm_{R_{LAST}}\) and prove that \(H(Comm_C, Comm_{R_{LAST}}) =
+For use in all challenge proofs, reveal \(Comm_C\) and \(Comm_{R_{LAST}}\) and prove that \(H(Comm_C || Comm_{R_{LAST}}) =
 Comm_R\).
 </p>
 
@@ -1032,6 +1033,23 @@ To prove encoding for a challenged label \(C\) on odd layers \(l_{odd}\) and \(C
 </ul>
 </li>
 <li>Prove encoding as usual for all odd \(e{_C}^{(l_{odd})}\) and even \(e{_{C_{even}}}^{(l_{even})}\).
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Opening Commitments for Online Proof</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+To prove encoding for a challenged label \(C\) in the replica:
+</p>
+<ul class="org-ul">
+<li>Reveal \(Comm_C\) (which must have been stored along with the replica).
+</li>
+<li>Open \(Comm_{R_{LAST}}\) from provided \(Comm_R\) by proving that \(H(Comm_C || Comm_{R_{LAST}}) = Comm_R\).
+</li>
+<li>Provide a merkle proof \(e_C^{(L)} \rightarrow Comm_{R_{LAST}}\).
 </li>
 </ul>
 </div>

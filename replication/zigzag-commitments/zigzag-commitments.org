@@ -153,7 +153,7 @@ We will generate two commitments $Comm_R, Comm_D$ to be placed on chain.
 
 $Comm_D$ is the merkle root of the original data.
 
-$Comm_R = H(Comm_C, Comm_{R_{LAST}})$.
+$Comm_R = H(Comm_C || Comm_{R_{LAST}})$.
 
 Their construction is described below.
 
@@ -202,8 +202,8 @@ graphs above, where $l$ indexes layers, and $i$ indexes labels.
 #+END_SRC
 
  #+RESULTS:
- |        |        |        |        |        | Even Challenge |        |        |
- | (0, 1) | (0, 2) | (0, 3) | (0, 4) | (0, 5) | (0, 6)         | (0, 7) | (0, 8) |
+ | ~~~~~~ | ~~~~~~ | ~~~~~~ | ~~~~~~ | ~~~~~~ | ~~~~~~ | Even Challenge | ~~~~~~ |
+ | (0, 1) | (0, 2) | (0, 3) | (0, 4) | (0, 5) | (0, 6) | (0, 7)         | (0, 8) |
 
 *** Vector Commitment
 Generate Merkle root for data leaves.
@@ -222,12 +222,12 @@ To open $D_i$, provide a merkle proof $D_i \rightarrow Comm_D$.
 #+END_SRC
 
 #+RESULTS:
-| DRG Parents | Odd Expander Parents | ~~~~~~ | ~~~~~~ | Even Expander Parents | Challenges | ~~~~~~ | ~~~~~~ |
-| (1, 1)      | (1, 2)               | (1, 3) | (1, 4) | (1, 5)                | (1, 6)     | (1, 7) | (1, 8) |
-| (2, 8)      | (2, 7)               | (2, 6) | (2, 5) | (2, 4)                | (2, 3)     | (2, 2) | (2, 1) |
-| (3, 1)      | (3, 2)               | (3, 3) | (3, 4) | (3, 5)                | (3, 6)     | (3, 7) | (3, 8) |
-| (4, 8)      | (4, 7)               | (4, 6) | (4, 5) | (4, 4)                | (4, 3)     | (4, 2) | (4, 1) |
-| (5, 1)      | (5, 2)               | (5, 3) | (5, 4) | (5, 5)                | (5, 6)     | (5, 7) | (5, 8) |
+| Odd Expander Parents | ~~~~~~ | ~~~~~~ | DRG Parents | ~~~~~~ | ~~~~~~ | Challenges | Even Expander Parents |
+| (1, 1)               | (1, 2) | (1, 3) | (1, 4)      | (1, 5) | (1, 6) | (1, 7)     | (1, 8)                |
+| (2, 8)               | (2, 7) | (2, 6) | (2, 5)      | (2, 4) | (2, 3) | (2, 2)     | (2, 1)                |
+| (3, 1)               | (3, 2) | (3, 3) | (3, 4)      | (3, 5) | (3, 6) | (3, 7)     | (3, 8)                |
+| (4, 8)               | (4, 7) | (4, 6) | (4, 5)      | (4, 4) | (4, 3) | (4, 2)     | (4, 1)                |
+| (5, 1)               | (5, 2) | (5, 3) | (5, 4)      | (5, 5) | (5, 6) | (5, 7)     | (5, 8)                |
 
 *** Odd Partition
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
@@ -235,14 +235,14 @@ To open $D_i$, provide a merkle proof $D_i \rightarrow Comm_D$.
 #+END_SRC
 
 #+RESULTS:
-| DRG Parents | Odd Expander Parents | ~~~~~~ | ~~~~~~ | Even Expander Parents | Challenges | ~~~~~~ | ~~~~~~ |
-| (1, 1)      | (1, 2)               | (1, 3) | (1, 4) | (1, 5)                | (1, 6)     | (1, 7) | (1, 8) |
-| (3, 1)      | (3, 2)               | (3, 3) | (3, 4) | (3, 5)                | (3, 6)     | (3, 7) | (3, 8) |
-| (5, 1)      | (5, 2)               | (5, 3) | (5, 4) | (5, 5)                | (5, 6)     | (5, 7) | (5, 8) |
+| Odd Expander Parents | ~~~~~~ | ~~~~~~ | DRG Parents | ~~~~~~ | ~~~~~~ | Challenges | Even Expander Parents |
+| (1, 1)               | (1, 2) | (1, 3) | (1, 4)      | (1, 5) | (1, 6) | (1, 7)     | (1, 8)                |
+| (3, 1)               | (3, 2) | (3, 3) | (3, 4)      | (3, 5) | (3, 6) | (3, 7)     | (3, 8)                |
+| (5, 1)               | (5, 2) | (5, 3) | (5, 4)      | (5, 5) | (5, 6) | (5, 7)     | (5, 8)                |
 
 Concatenate and hash rows of column $i$ to construct $O_i$.
 
-Column hash $O_i = H(e_i^{(1)}, e_i^{(3)}, … e_i^{(L-1)})$.
+Column hash $O_i = H(e_i^{(1)} || e_i^{(3)} || … e_i^{(L-1)})$.
 
 *** Even Partition
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
@@ -250,14 +250,14 @@ Column hash $O_i = H(e_i^{(1)}, e_i^{(3)}, … e_i^{(L-1)})$.
 #+END_SRC
 
 #+RESULTS:
-| DRG Parents | Odd Expander Parents | ~~~~~~ | ~~~~~~ | Even Expander Parents | Challenges | ~~~~~~ | ~~~~~~ |
-| (2, 8)      | (2, 7)               | (2, 6) | (2, 5) | (2, 4)                | (2, 3)     | (2, 2) | (2, 1) |
-| (4, 8)      | (4, 7)               | (4, 6) | (4, 5) | (4, 4)                | (4, 3)     | (4, 2) | (4, 1) |
+| Odd Expander Parents | ~~~~~~ | ~~~~~~ | DRG Parents | ~~~~~~ | ~~~~~~ | Challenges | Even Expander Parents |
+| (2, 8)               | (2, 7) | (2, 6) | (2, 5)      | (2, 4) | (2, 3) | (2, 2)     | (2, 1)                |
+| (4, 8)               | (4, 7) | (4, 6) | (4, 5)      | (4, 4) | (4, 3) | (4, 2)     | (4, 1)                |
 
 
 Concatenate and hash rows of column $i$ to construct $E_i$.
 
-Column hash $E_i = H(e_i^{(2)}, e_i^{(4)}, … e_i^{(L)})$.
+Column hash $E_i = H(e_i^{(2)} || e_i^{(4)} || … e_i^{(L)})$.
 
 *** Vector Commitment
 Produce the column leaves: $C_i = H(O_i || E_i)$.
@@ -281,8 +281,8 @@ Note: even-layer labels of $C_i$ have index $(N-i)+1$.
 Reveal all labels and prove they hash to $E_i$ and $O_i$ as above. ($L$ hash proofs).
 
 **** Then, in every case
-- Prove $H(O_i, E_i) \rightarrow Comm_C$.
-- Reveal $Comm_{R_{LAST}}$ and prove that $H(Comm_C, Comm_{R_{LAST}}) = Comm_R$.
+- Prove $H(O_i || E_i) \rightarrow Comm_C$.
+- Reveal $Comm_{R_{LAST}}$ and prove that $H(Comm_C || Comm_{R_{LAST}}) = Comm_R$.
 
 ** Final Replica Layer
  #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
@@ -290,8 +290,8 @@ Reveal all labels and prove they hash to $E_i$ and $O_i$ as above. ($L$ hash pro
 #+END_SRC
 
  #+RESULTS:
- |        |        | Even Challenge |        | Even Expander Parent |        |        | Even DRG Parent |
- | (6, 1) | (6, 2) | (6, 3)         | (6, 4) | (6, 5)               | (6, 6) | (6, 7) | (6, 8)          |
+ | ~~~~~~ | Even Challenge | ~~~~~~ | ~~~~~~ | Even DRG Parent | ~~~~~~ | ~~~~~~ | Even Expander Parent |
+ | (6, 1) | (6, 2)         | (6, 3) | (6, 4) | (6, 5)          | (6, 6) | (6, 7) | (6, 8)               |
 
 *** Vector Commitment
 Generate Merkle tree for replica leaves.
@@ -303,14 +303,14 @@ $Comm_{R_{LAST}} = VC(R_{LAST_1} || R_{LAST_2} || … || R_{LAST_n})$.
 *** Opening
 To open $R_{LAST_i}$,
 - Provide a merkle proof $R_{LAST_i} \rightarrow Comm_{R_{LAST}}$.
-- Reveal $Comm_C$ and prove that $H(Comm_C, Comm_{R_{LAST}}) = Comm_R$.
+- Reveal $Comm_C$ and prove that $H(Comm_C || Comm_{R_{LAST}}) = Comm_R$.
 
 ** Replica Commitment
  Produce $Comm_R$ from its constituents.
 
- $Comm_R = H(Comm_C, Comm_{R_{LAST}})$.
-* Opening Commitments for Proof
-For use in all challenge proofs, reveal $Comm_C$ and $Comm_{R_{LAST}}$ and prove that $H(Comm_C, Comm_{R_{LAST}}) =
+ $Comm_R = H(Comm_C || Comm_{R_{LAST}})$.
+* Opening Commitments for Offline Proof
+For use in all challenge proofs, reveal $Comm_C$ and $Comm_{R_{LAST}}$ and prove that $H(Comm_C || Comm_{R_{LAST}}) =
 Comm_R$.
 
 To prove encoding for a challenged label $C$ on odd layers $l_{odd}$ and $C_{even}$ on even layers $l_{even}$.
@@ -326,3 +326,8 @@ To prove encoding for a challenged label $C$ on odd layers $l_{odd}$ and $C_{eve
   - Open all challenged labels ($e_C^{(L)}$) and odd challenged parents (any kind) — using $Comm_{R_{LAST}}$.
 - Prove encoding as usual for all odd $e{_C}^{(l_{odd})}$ and even $e{_{C_{even}}}^{(l_{even})}$.
 
+* Opening Commitments for Online Proof
+To prove encoding for a challenged label $C$ in the replica:
+- Reveal $Comm_C$ (which must have been stored along with the replica).
+- Open $Comm_{R_{LAST}}$ from provided $Comm_R$ by proving that $H(Comm_C || Comm_{R_{LAST}}) = Comm_R$.
+- Provide a merkle proof $e_C^{(L)} \rightarrow Comm_{R_{LAST}}$.
