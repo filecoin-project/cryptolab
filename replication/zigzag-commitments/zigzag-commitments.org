@@ -1,6 +1,7 @@
-#+TITLE: ZigZag Commitments
++TITLE: ZigZag Commitments
 #+SETUPFILE: ../../theme-readtheorg.setup
 #+OPTIONS: author:nil creator:nil timestamp:nil
+
 #+begin_src lisp :exports none
   (ql:quickload :orient)
 #+end_src
@@ -10,20 +11,19 @@
 * Introduction
 This document provides a simplified visual explanation of the ZigZag Commitment algorithm described in [[https://www.overleaf.com/read/kcdhnxwptxbc][Tight PoS - ZigZag]].
 
-It is intended to confer intuition about the algorithm, and to serve as a reference for implementors. The author of this
+It is intended to confer intuition about the algorithm, and to serve as a reference for implementers. The author of this
 document and those of the linked paper believe the two are consistent; and converging on this consistent design was a
 third design goal of this document's construction.
 * Graph
-#+NAME: layer-0
+#+NAME: init-graph
 #+BEGIN_SRC lisp :package "filecoin.theory" :results output silent :exports none 
 (defparameter *layers* 6)
 (defparameter *nodes* 8)
+
 (defparameter *zigzag-graph* (make-zigzag-graph *nodes* *layers*))
 
 (let ((lg (first (zigzag-graph-layer-graphs *zigzag-graph*))))
   (defparameter *comm-d-graph* (make-comm-d-layer-graph (layer-graph-nodes lg) (layer-graph-challenged-node lg))))
-
-(emit-layer-graph (nth 0 (zigzag-graph-layer-graphs *zigzag-graph*)))
 #+END_SRC
 
 #+NAME: legend-odd
@@ -78,6 +78,11 @@ $input
 [[file:data-layer.png]]
 
 ** Replica Column Layers: $Comm_C$ Tree
+
+#+NAME: layer-0
+#+BEGIN_SRC lisp :package "filecoin.theory" :results output silent :exports none 
+(emit-layer-graph (nth 0 (zigzag-graph-layer-graphs *zigzag-graph*)))
+#+end_src
 
 #+BEGIN_SRC dot :file layer-0.png :var input=layer-0 :exports results
 $input
@@ -190,14 +195,14 @@ layer's label is $e_{\bar{i}}^{(2)}$.
 #+END_SRC
 
 #+RESULTS:
-| Graph    | (1, 1)      | (1, 2)      | (1, 3)      | (1, 4)      | (1, 5)      | (1, 6)      | (1, 7)      | (1, 8)      |
+| Graph    | $(1, 1)$    | $(1, 2)$    | $(1, 3)$    | $(1, 4)$    | $(1, 5)$    | $(1, 6)$    | $(1, 7)$    | $(1, 8)$    |
 | Notation | $e_1^{(1)}$ | $e_2^{(1)}$ | $e_3^{(1)}$ | $e_4^{(1)}$ | $e_5^{(1)}$ | $e_6^{(1)}$ | $e_7^{(1)}$ | $e_8^{(1)}$ |
 
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
 (notation-row *zigzag-graph* 2)
 #+END_SRC
 #+RESULTS:
-| Graph    | (2, 1)      | (2, 2)      | (2, 3)      | (2, 4)      | (2, 5)      | (2, 6)      | (2, 7)      | (2, 8)      |
+| Graph    | $(2, 1)$    | $(2, 2)$    | $(2, 3)$    | $(2, 4)$    | $(2, 5)$    | $(2, 6)$    | $(2, 7)$    | $(2, 8)$    |
 | Notation | $e_1^{(2)}$ | $e_2^{(2)}$ | $e_3^{(2)}$ | $e_4^{(2)}$ | $e_5^{(2)}$ | $e_6^{(2)}$ | $e_7^{(2)}$ | $e_8^{(2)}$ |
 …
 
@@ -206,7 +211,7 @@ layer's label is $e_{\bar{i}}^{(2)}$.
 #+END_SRC
 
 #+RESULTS:
-| Graph    | (6, 1)      | (6, 2)      | (6, 3)      | (6, 4)      | (6, 5)      | (6, 6)      | (6, 7)      | (6, 8)      |
+| Graph    | $(6, 1)$    | $(6, 2)$    | $(6, 3)$    | $(6, 4)$    | $(6, 5)$    | $(6, 6)$    | $(6, 7)$    | $(6, 8)$    |
 | Notation | $e_1^{(6)}$ | $e_2^{(6)}$ | $e_3^{(6)}$ | $e_4^{(6)}$ | $e_5^{(6)}$ | $e_6^{(6)}$ | $e_7^{(6)}$ | $e_8^{(6)}$ |
 
 ** Initial Data Layer
@@ -215,8 +220,8 @@ layer's label is $e_{\bar{i}}^{(2)}$.
 #+END_SRC
 
  #+RESULTS:
- | ~~~~~~ | ~~~~~~ | ~~~~~~ | ~~~~~~ | ~~~~~~ | ~~~~~~ | Even Challenge | ~~~~~~ |
- | (0, 1) | (0, 2) | (0, 3) | (0, 4) | (0, 5) | (0, 6) | (0, 7)         | (0, 8) |
+ | ~~~~~~   | ~~~~~~   | ~~~~~~   | ~~~~~~   | (Odd) Challenge | ~~~~~~   | ~~~~~~   | ~~~~~~   |
+ | $(0, 1)$ | $(0, 2)$ | $(0, 3)$ | $(0, 4)$ | $(0, 5)$        | $(0, 6)$ | $(0, 7)$ | $(0, 8)$ |
 
 *** Vector Commitment
 Generate Merkle root for data leaves.
@@ -230,17 +235,24 @@ To open $D_i$, provide a merkle proof $D_i \rightarrow Comm_D$.
 
 ** ZigZag Replica Columns
 *** Unpartitioned Columns
+
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
 (columns *zigzag-graph*)
 #+END_SRC
 
 #+RESULTS:
-| ~~~~~~ | ~~~~~~ | DRG Parents | Even Expander Parents | Odd Expander Parents | ~~~~~~ | Challenges | ~~~~~~ |
-| (1, 1) | (1, 2) | (1, 3)      | (1, 4)                | (1, 5)               | (1, 6) | (1, 7)     | (1, 8) |
-| (2, 8) | (2, 7) | (2, 6)      | (2, 5)                | (2, 4)               | (2, 3) | (2, 2)     | (2, 1) |
-| (3, 1) | (3, 2) | (3, 3)      | (3, 4)                | (3, 5)               | (3, 6) | (3, 7)     | (3, 8) |
-| (4, 8) | (4, 7) | (4, 6)      | (4, 5)                | (4, 4)               | (4, 3) | (4, 2)     | (4, 1) |
-| (5, 1) | (5, 2) | (5, 3)      | (5, 4)                | (5, 5)               | (5, 6) | (5, 7)     | (5, 8) |
+| Even Expander Parents | Odd Expander Parents | DRG Parents | ~~~~~~   | Challenges | ~~~~~~   | ~~~~~~   | ~~~~~~   |
+| $(1, 1)^{*}$          | $(1, 2)$             | $(1, 3)$    | $(1, 4)$ | $(1, 5)$   | $(1, 6)$ | $(1, 7)$ | $(1, 8)$ |
+| $(2, 8)$              | $(2, 7)^{*}$         | $(2, 6)$    | $(2, 5)$ | $(2, 4)$   | $(2, 3)$ | $(2, 2)$ | $(2, 1)$ |
+| $(3, 1)^{*}$          | $(3, 2)$             | $(3, 3)$    | $(3, 4)$ | $(3, 5)$   | $(3, 6)$ | $(3, 7)$ | $(3, 8)$ |
+| $(4, 8)$              | $(4, 7)^{*}$         | $(4, 6)$    | $(4, 5)$ | $(4, 4)$   | $(4, 3)$ | $(4, 2)$ | $(4, 1)$ |
+| $(5, 1)^{*}$          | $(5, 2)$             | $(5, 3)$    | $(5, 4)$ | $(5, 5)$   | $(5, 6)$ | $(5, 7)$ | $(5, 8)$ |
+
+
+$^{*}$ Indicates labels which must be hashed for column commitments but need not be opened for proofs.
+
+Define $C_{p_{even}}$ to be the column containing the even expander parents.
+Define $C_{p_{odd}}$ to be the column containing the odd expander parents.
 
 *** Odd Partition
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
@@ -248,14 +260,17 @@ To open $D_i$, provide a merkle proof $D_i \rightarrow Comm_D$.
 #+END_SRC
 
 #+RESULTS:
-| ~~~~~~ | ~~~~~~ | DRG Parents | Even Expander Parents | Odd Expander Parents | ~~~~~~ | Challenges | ~~~~~~ |
-| (1, 1) | (1, 2) | (1, 3)      | (1, 4)                | (1, 5)               | (1, 6) | (1, 7)     | (1, 8) |
-| (3, 1) | (3, 2) | (3, 3)      | (3, 4)                | (3, 5)               | (3, 6) | (3, 7)     | (3, 8) |
-| (5, 1) | (5, 2) | (5, 3)      | (5, 4)                | (5, 5)               | (5, 6) | (5, 7)     | (5, 8) |
+| Even Expander Parents | Odd Expander Parents | DRG Parents | ~~~~~~   | Challenges | ~~~~~~   | ~~~~~~   | ~~~~~~   |
+| $(1, 1)^{*}$          | $(1, 2)$             | $(1, 3)$    | $(1, 4)$ | $(1, 5)$   | $(1, 6)$ | $(1, 7)$ | $(1, 8)$ |
+| $(3, 1)^{*}$          | $(3, 2)$             | $(3, 3)$    | $(3, 4)$ | $(3, 5)$   | $(3, 6)$ | $(3, 7)$ | $(3, 8)$ |
+| $(5, 1)^{*}$          | $(5, 2)$             | $(5, 3)$    | $(5, 4)$ | $(5, 5)$   | $(5, 6)$ | $(5, 7)$ | $(5, 8)$ |
 
 Concatenate and hash rows of column $i$ to construct $O_i$.
 
-Column hash $O_i = H(e_i^{(1)} || e_i^{(3)} || … e_i^{(L-1)})$.
+Odd column hash $O_i = H(e_i^{(1)} || e_i^{(3)} || … e_i^{(L-1)})$.
+
+Define $O_{p_{odd}}$ to be the odd column hash containing the odd expander parents.
+Define $O_{p_{even}}$ to be the odd column hash containing the even expander parents.
 
 *** Even Partition
 #+BEGIN_SRC lisp :package "filecoin.theory" :exports results
@@ -263,16 +278,19 @@ Column hash $O_i = H(e_i^{(1)} || e_i^{(3)} || … e_i^{(L-1)})$.
 #+END_SRC
 
 #+RESULTS:
-| ~~~~~~ | ~~~~~~ | DRG Parents | Even Expander Parents | Odd Expander Parents | ~~~~~~ | Challenges | ~~~~~~ |
-| (2, 8) | (2, 7) | (2, 6)      | (2, 5)                | (2, 4)               | (2, 3) | (2, 2)     | (2, 1) |
-| (4, 8) | (4, 7) | (4, 6)      | (4, 5)                | (4, 4)               | (4, 3) | (4, 2)     | (4, 1) |
+| Even Expander Parents | Odd Expander Parents | DRG Parents | ~~~~~~   | Challenges | ~~~~~~   | ~~~~~~   | ~~~~~~   |
+| $(2, 8)$              | $(2, 7)^{*}$         | $(2, 6)$    | $(2, 5)$ | $(2, 4)$   | $(2, 3)$ | $(2, 2)$ | $(2, 1)$ |
+| $(4, 8)$              | $(4, 7)^{*}$         | $(4, 6)$    | $(4, 5)$ | $(4, 4)$   | $(4, 3)$ | $(4, 2)$ | $(4, 1)$ |
 
 
 Concatenate and hash rows of column $i$ to construct $E_i$.
 
 Remember that column with index $i$ contains even-layered labels of index $\bar{i} = N - i + 1$.
 
-Column hash $E_i = H(e_{\bar{i}}^{(2)} || e_{\bar{i}}^{(4)} || … e_{\bar{i}}^{(L-2)})$.
+Even column hash $E_i = H(e_{\bar{i}}^{(2)} || e_{\bar{i}}^{(4)} || … e_{\bar{i}}^{(L-2)})$.
+
+Define $E_{p_{odd}}$ to be the even column hash containing the odd expander parents.
+Define $E_{p_{even}}$ to be the even column hash containing the even expander parents.
 
 *** Vector Commitment
 
@@ -306,8 +324,8 @@ Reveal all labels and prove they hash to $E_i$ and $O_i$ as above. ($L$ hash pro
 #+END_SRC
 
  #+RESULTS:
- | ~~~~~~ | Even Challenge | ~~~~~~ | Even Expander Parent | ~~~~~~ | Even DRG Parent | ~~~~~~ | ~~~~~~ |
- | (6, 1) | (6, 2)         | (6, 3) | (6, 4)               | (6, 5) | (6, 6)          | (6, 7) | (6, 8) |
+ | ~~~~~~   | ~~~~~~   | ~~~~~~   | Even Challenge | ~~~~~~   | Even DRG Parent | ~~~~~~   | Even Expander Parent |
+ | $(6, 1)$ | $(6, 2)$ | $(6, 3)$ | $(6, 4)$       | $(6, 5)$ | $(6, 6)$        | $(6, 7)$ | $(6, 8)$             |
 
 *** Vector Commitment
 Generate Merkle tree for replica leaves.
@@ -344,8 +362,11 @@ To prove encoding for a challenged label $\chi$ on odd layers $l_{odd}$ and $\ba
   - Open only odd-layer labels in the 'renumbered' column ($C_{\bar{\chi}}$) — using $Comm_C$. (This contains the
     challenged label's 'data node', $e_\chi^{(L-1)}$.)
   - Open all labels in the columns containing challenged label's DRG parents — using $Comm_C$.
-  - Open only even-layer labels in the columns containing challenged label's even expander parents — using $Comm_C$ and $O_\chi$.
-  - Open only odd-layer labels in the columns containing challenged label's odd-layer expander parents — using $Comm_C$ and $E_{\bar{\chi}}$.
+
+  - Open only even-layer labels in the columns containing challenged label's even expander parents — using $Comm_C$ and
+    $O_{p_{even}}$.
+  - Open only odd-layer labels in the columns containing challenged label's odd-layer expander parents — using $Comm_C$
+    and $E_{p_{odd}}$.
 - Final replica layer openings
   - Open all challenged labels ($e_{\bar{\chi}}^{(L)}$) and even challenged parents (any kind) — using $Comm_{R_{LAST}}$.
 - Prove encoding as usual for all odd-layer $e{_\chi}^{(l_{odd})}$ and even-layer $e{_{\bar{\chi}}}^{(l_{even})}$.
